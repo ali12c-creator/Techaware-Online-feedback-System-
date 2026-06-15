@@ -1,0 +1,147 @@
+erDiagram
+    DEPARTMENT {
+        int id PK "Primary Key"
+        varchar code UK "Unique Code"
+        varchar name "Department Name"
+        text description "Description"
+        boolean is_active "Active Status"
+    }
+
+    BATCH {
+        int id PK "Primary Key"
+        int department_id FK "References Department"
+        varchar name "Batch Name"
+        int year "Academic Year"
+        varchar semester "Current Semester"
+        date start_date "Start Date"
+        date end_date "End Date"
+        boolean is_active "Active Status"
+    }
+
+    SECTION {
+        int id PK "Primary Key"
+        int batch_id FK "References Batch"
+        varchar name "Section Name"
+        int capacity "Max Capacity"
+        int current_students "Enrolled Count"
+        boolean is_active "Active Status"
+    }
+
+    COURSE {
+        int id PK "Primary Key"
+        varchar code UK "Course Code"
+        varchar name "Course Name"
+        int department_id FK "References Department"
+        int credit_hours "Credit Hours"
+        text description "Description"
+    }
+
+    USER_TABLE {
+        int id PK "Primary Key"
+        varchar username UK "Login Username"
+        varchar email UK "Email Address"
+        varchar password_hash "Hashed Password"
+        varchar role "admin/teacher/advisor"
+        varchar name "Full Name"
+        boolean is_active "Active Status"
+    }
+
+    STUDENT {
+        int id PK "Primary Key"
+        varchar registration_number UK "Reg Number"
+        varchar name "Student Name"
+        varchar email UK "Email Address"
+        varchar password_hash "Hashed Password"
+        int department_id FK "References Department"
+        int batch_id FK "References Batch"
+        int section_id FK "References Section"
+        varchar section "Section Label"
+        varchar phone "Phone Number"
+    }
+
+    TEACHER {
+        int id PK "Primary Key"
+        varchar name "Teacher Name"
+        varchar email UK "Email Address"
+        varchar employee_id UK "Employee ID"
+        varchar department "Department Name"
+        varchar designation "Designation"
+        boolean is_active "Active Status"
+    }
+
+    FEEDBACK {
+        int id PK "Primary Key"
+        int student_id FK "References Student"
+        varchar student_name "Student Name"
+        varchar registration_number "Reg Number"
+        int course_id FK "References Course"
+        int teacher_id FK "References Teacher"
+        text feedback_text "Feedback Content"
+        int rating_overall "Overall Rating 1-5"
+        int rating_clarity "Clarity Rating"
+        int rating_punctuality "Punctuality Rating"
+        int rating_material_quality "Material Rating"
+        int rating_communication "Communication Rating"
+        varchar sentiment "Positive/Negative/Neutral"
+        float polarity "Polarity Score"
+        float subjectivity "Subjectivity Score"
+        text suggestions "AI Suggestions"
+        datetime created_at "Submission Time"
+    }
+
+    BATCH_SUBJECT {
+        int id PK "Primary Key"
+        int batch_id FK "References Batch"
+        int course_id FK "References Course"
+        boolean is_required "Required Flag"
+    }
+
+    COURSE_TEACHER {
+        int id PK "Primary Key"
+        int batch_subject_id FK "References BatchSubject"
+        int teacher_id FK "References Teacher"
+        int section_id FK "References Section"
+        varchar lecture_type "Theory/Lab"
+    }
+
+    STUDENT_COURSE {
+        int id PK "Primary Key"
+        int student_id FK "References Student"
+        int course_id FK "References Course"
+        varchar semester "Semester"
+        varchar section "Section"
+    }
+
+    TIMETABLE {
+        int id PK "Primary Key"
+        int course_id FK "References Course"
+        int teacher_id FK "References Teacher"
+        int section_id FK "References Section"
+        int batch_id FK "References Batch"
+        int day_of_week "Day 0-6"
+        time start_time "Start Time"
+        time end_time "End Time"
+        varchar room "Room Number"
+        varchar semester "Semester"
+    }
+
+    DEPARTMENT ||--o{ BATCH : "has batches"
+    DEPARTMENT ||--o{ COURSE : "offers courses"
+    DEPARTMENT ||--o{ STUDENT : "enrolls students"
+    BATCH ||--o{ SECTION : "contains sections"
+    BATCH ||--o{ BATCH_SUBJECT : "assigns subjects"
+    BATCH ||--o{ STUDENT : "belongs to"
+    BATCH ||--o{ TIMETABLE : "schedules"
+    SECTION ||--o{ STUDENT : "enrolled in"
+    SECTION ||--o{ TIMETABLE : "has schedule"
+    SECTION ||--o{ COURSE_TEACHER : "assigned to"
+    COURSE ||--o{ FEEDBACK : "receives feedback"
+    COURSE ||--o{ BATCH_SUBJECT : "assigned to batch"
+    COURSE ||--o{ TIMETABLE : "scheduled in"
+    COURSE ||--o{ STUDENT_COURSE : "registered in"
+    TEACHER ||--o{ FEEDBACK : "reviewed by"
+    TEACHER ||--o{ COURSE_TEACHER : "teaches"
+    TEACHER ||--o{ TIMETABLE : "teaches in"
+    STUDENT ||--o{ FEEDBACK : "submits feedback"
+    STUDENT ||--o{ STUDENT_COURSE : "registered for"
+    BATCH_SUBJECT ||--o{ COURSE_TEACHER : "maps to teacher"

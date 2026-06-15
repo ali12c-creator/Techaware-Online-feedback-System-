@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - TechAware</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='enhanced-style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .portal-body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #f6fafc 0%, #eaf1f8 40%, #f5f8fb 100%);
+            color: #1d2939;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            padding: 2rem 1.25rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .sidebar h2 {
+            margin: 0 0 2rem;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0.4px;
+        }
+
+        .sidebar a {
+            display: block;
+            margin-bottom: 0.65rem;
+            padding: 0.85rem 0.95rem;
+            border-radius: 10px;
+            color: #e2e8f0;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s ease;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(4px);
+        }
+
+        .main {
+            padding: 2rem;
+        }
+
+        .header {
+            background: linear-gradient(120deg, #2563eb 0%, #0ea5e9 100%);
+            color: #fff;
+            padding: 1.75rem;
+            border-radius: 18px;
+            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.1rem;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            border-top: 4px solid #2563eb;
+        }
+
+        .card p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .card h3 {
+            margin: 0.35rem 0 0;
+            font-size: 1.7rem;
+            color: #0f172a;
+        }
+
+        .section {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.25rem;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            margin-bottom: 1.25rem;
+        }
+
+        .section h2 {
+            margin: 0 0 1rem;
+            font-size: 1.15rem;
+            color: #0f172a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 0.8rem 0.65rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.93rem;
+        }
+
+        th {
+            color: #334155;
+            font-size: 0.83rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #fff;
+            background: #059669;
+        }
+
+        .stars {
+            color: #f59e0b;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .chart-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            margin-bottom: 1.25rem;
+        }
+
+        .chart-card h3 {
+            margin: 0 0 1rem;
+            font-size: 1.1rem;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        @media (max-width: 980px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                height: auto;
+                position: static;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, minmax(140px, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .main {
+                padding: 1rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body class="portal-body">
+    <div class="layout">
+        <aside class="sidebar">
+            <h2>Teacher Portal</h2>
+            <a href="#schedule">My Schedule</a>
+            <a href="/teacher/mark-attendance">Mark Attendance</a>
+            <a href="#feedback">View Feedback</a>
+            <a href="#profile">Profile</a>
+            <a href="/logout">Logout</a>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <h1>Welcome, {{ user.name }} 👨‍🏫</h1>
+            </header>
+
+            <section class="stats">
+                <div class="card">
+                    <p>My Classes</p>
+                    <h3>{{ stats.total_classes or 0 }}</h3>
+                </div>
+                <div class="card">
+                    <p>Attendance Pending</p>
+                    <h3>{{ stats.attendance_pending or 0 }}</h3>
+                </div>
+                <div class="card">
+                    <p>Feedback Received</p>
+                    <h3>{{ stats.total_feedbacks or 0 }}</h3>
+                </div>
+                <div class="card">
+                    <p>Avg Rating</p>
+                    <h3>{{ stats.avg_rating or 0 }}</h3>
+                    <div style="font-size:12px; color:#a0a0b8; margin-top:4px;">
+                        ⚖️ Weighted by attendance
+                    </div>
+                </div>
+            </section>
+
+            <div class="chart-card">
+                <h3>📊 Feedback Sentiment</h3>
+                <canvas id="sentimentChart" 
+                        width="300" height="300"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <h3>⭐ Rating Distribution</h3>
+                <canvas id="ratingChart" 
+                        width="400" height="300"></canvas>
+            </div>
+
+            <div class="content-card" id="schedule">
+                <div class="card-header">
+                    <h2>📅 My Schedule</h2>
+                </div>
+                
+                {% if timetables %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Subject</th>
+                            <th>Section</th>
+                            <th>Batch</th>
+                            <th>Room</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tt in timetables %}
+                        <tr>
+                            <td>{{ ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][tt.day_of_week] }}</td>
+                            <td>
+                                {{ tt.start_time.strftime('%I:%M %p') if tt.start_time else 'N/A' }}
+                                -
+                                {{ tt.end_time.strftime('%I:%M %p') if tt.end_time else 'N/A' }}
+                            </td>
+                            <td>
+                                {{ tt.course.name if tt.course else 'N/A' }}
+                            </td>
+                            <td>
+                                {{ tt.section.name if tt.section else 'N/A' }}
+                            </td>
+                            <td>
+                                {{ tt.batch.name if tt.batch else 'N/A' }}
+                            </td>
+                            <td>{{ tt.room or 'N/A' }}</td>
+                            <td>
+                                <a href="/teacher/mark-attendance" class="btn-mark-attendance">
+                                Mark Attendance
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="text-align:center;padding:40px;color:#a0a0b8;">
+                    <p>📭 No classes assigned yet!</p>
+                    <p>Ask admin to assign classes.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- AI Analysis Section -->
+            {% if ai_analysis and ai_analysis.get('summary') %}
+            <div style="background:white;border-radius:12px;padding:25px;margin-bottom:25px;box-shadow:0 2px 8px rgba(0,0,0,0.08)">
+                <h3 style="color:#6C63FF;margin-top:0">🤖 AI Analysis & Suggestions</h3>
+
+                <div style="display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap">
+                    <div style="background:#e8f5e9;padding:12px 20px;border-radius:8px;text-align:center;flex:1">
+                        <div style="font-size:24px;font-weight:700;color:#2e7d32">{{ ai_analysis.get('positive_count', 0) }}</div>
+                        <div style="color:#2e7d32;font-size:13px">😊 Positive</div>
+                    </div>
+                    <div style="background:#fff8e1;padding:12px 20px;border-radius:8px;text-align:center;flex:1">
+                        <div style="font-size:24px;font-weight:700;color:#f57f17">{{ ai_analysis.get('neutral_count', 0) }}</div>
+                        <div style="color:#f57f17;font-size:13px">😐 Neutral</div>
+                    </div>
+                    <div style="background:#ffebee;padding:12px 20px;border-radius:8px;text-align:center;flex:1">
+                        <div style="font-size:24px;font-weight:700;color:#c62828">{{ ai_analysis.get('negative_count', 0) }}</div>
+                        <div style="color:#c62828;font-size:13px">😞 Negative</div>
+                    </div>
+                </div>
+
+                <div style="background:#f0eeff;padding:15px;border-radius:8px;margin-bottom:15px">
+                    <p style="margin:0;color:#444;font-size:15px">
+                        <b style="color:#6C63FF">📊 Summary:</b> {{ ai_analysis.get('summary', '') }}
+                    </p>
+                </div>
+
+                {% if ai_analysis.get('suggestions') %}
+                <div style="margin-bottom:15px">
+                    <b style="color:#6C63FF">💡 Teaching Suggestions:</b>
+                    <ul style="margin-top:8px;padding-left:20px">
+                        {% for s in ai_analysis.get('suggestions', []) %}
+                        <li style="margin-bottom:5px;color:#444">{{ s }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if ai_analysis.get('strengths') %}
+                <div style="margin-bottom:15px">
+                    <b style="color:#2e7d32">✅ Strengths:</b>
+                    <ul style="margin-top:8px;padding-left:20px">
+                        {% for s in ai_analysis.get('strengths', []) %}
+                        <li style="margin-bottom:5px;color:#444">{{ s }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if ai_analysis.get('areas_to_improve') %}
+                <div>
+                    <b style="color:#c62828">📈 Areas to Improve:</b>
+                    <ul style="margin-top:8px;padding-left:20px">
+                        {% for a in ai_analysis.get('areas_to_improve', []) %}
+                        <li style="margin-bottom:5px;color:#444">{{ a }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <section class="section" id="feedback">
+                <h2>Recent Feedback</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Attendance</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if recent_feedbacks %}
+                            {% for fb in recent_feedbacks %}
+                            <tr>
+                                <td>{{ fb.student_name }}</td>
+                                <td>{{ fb.rating_overall }}⭐</td>
+                                <td>{{ fb.feedback_text }}</td>
+                                <td>
+                                    {% if fb.student_id %}
+                                    Tracked ✅
+                                    {% else %}
+                                    N/A
+                                    {% endif %}
+                                </td>
+                                <td>{{ fb.created_at.strftime('%Y-%m-%d') if fb.created_at else 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" style="text-align:center;color:#a0a0b8;">
+                                    No feedback yet!
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="section" id="profile">
+                <h2>Profile</h2>
+                <p style="margin: 0; color: #475569;">Manage your teacher profile and preferences from this section.</p>
+            </section>
+        </main>
+    </div>
+    <script>
+    // Sentiment Pie Chart
+    const sCtx = document.getElementById(
+        'sentimentChart').getContext('2d');
+    new Chart(sCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Positive 😊', 
+                     'Neutral 😐', 
+                     'Negative 😞'],
+            datasets: [{
+                data: [
+                    {{ stats.positive or 0 }},
+                    {{ stats.neutral or 0 }},
+                    {{ stats.negative or 0 }}
+                ],
+                backgroundColor: [
+                    '#10b981',
+                    '#f59e0b', 
+                    '#ef4444'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Rating Bar Chart
+    const rCtx = document.getElementById(
+        'ratingChart').getContext('2d');
+    new Chart(rCtx, {
+        type: 'bar',
+        data: {
+            labels: ['1⭐','2⭐','3⭐','4⭐','5⭐'],
+            datasets: [{
+                label: 'Students',
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: '#6366f1',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+flowchart TD
+    subgraph External["External Entities"]
+        S["👤 Student"]
+        T["👨‍🏫 Teacher"]
+        A["🔧 Administrator"]
+        BA["📋 Batch Advisor"]
+        SMTP["📧 Gmail SMTP"]
+    end
+
+    subgraph Processes["System Processes"]
+        P1["1.0<br/>Authenticate<br/>User"]
+        P2["2.0<br/>Manage Academic<br/>Data"]
+        P3["3.0<br/>Mark<br/>Attendance"]
+        P4["4.0<br/>Collect and Process<br/>Feedback"]
+        P5["5.0<br/>Perform Sentiment<br/>Analysis"]
+        P6["6.0<br/>Generate AI<br/>Suggestions"]
+        P7["7.0<br/>Send Email<br/>Notifications"]
+        P8["8.0<br/>Generate Reports<br/>and Analytics"]
+        P9["9.0<br/>Monitor Teacher<br/>Performance"]
+    end
+
+    subgraph DataStores["Data Stores"]
+        DS1[("D1: User<br/>Database")]
+        DS2[("D2: Academic<br/>Database")]
+        DS3[("D3: Feedback<br/>Database")]
+        DS4[("D4: Attendance<br/>Database")]
+    end
+
+    S -->|"Login Credentials"| P1
+    T -->|"Login Credentials"| P1
+    A -->|"Login Credentials"| P1
+    P1 -->|"User Record"| DS1
+    DS1 -->|"Auth Result"| P1
+
+    A -->|"CRUD Requests"| P2
+    P2 -->|"Academic Data"| DS2
+
+    T -->|"Attendance Data"| P3
+    P3 -->|"Attendance Record"| DS4
+    P3 -->|"Present Students"| P7
+
+    S -->|"Feedback Data"| P4
+    P4 -->|"Feedback Text"| P5
+    P5 -->|"Sentiment Score"| P4
+    P4 -->|"Analyzed Feedback"| P6
+    P6 -->|"Suggestions"| P4
+    P4 -->|"Complete Record"| DS3
+
+    P4 -->|"Notification Request"| P7
+    P7 -->|"Email Content"| SMTP
+    SMTP -->|"Delivery Status"| P7
+
+    DS3 -->|"Feedback Data"| P8
+    P8 -->|"Dashboard Data"| T
+    P8 -->|"PDF Report"| T
+
+    DS3 -->|"Performance Data"| P9
+    P9 -->|"Alert"| P7
+    P7 -->|"Alert Email"| BA
+
+    style S fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style T fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style A fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style BA fill:#f8bbd0,stroke:#c62828,stroke-width:2px,color:#000
+    style SMTP fill:#e0e0e0,stroke:#616161,stroke-width:2px,color:#000
+
+    style P1 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P2 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P3 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P4 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P5 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P6 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P7 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P8 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P9 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+
+    style DS1 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style DS2 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style DS3 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style DS4 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+
+    style External fill:#f5f5f5,stroke:#999,stroke-width:2px
+    style Processes fill:#fffde7,stroke:#f57f17,stroke-width:2px
+    style DataStores fill:#f1f8e9,stroke:#33691e,stroke-width:2px

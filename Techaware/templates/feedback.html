@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Feedback Portal - TechAware</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='modern-style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='enhanced-style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  </style>
+</head>
+<body>
+  <!-- Modern Navigation Bar -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="TechAware Logo">
+        <span>TechAware</span>
+      </a>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="/student/dashboard" class="nav-link">📊 Dashboard</a></li>
+        <li><a href="/feedback" class="nav-link active">📝 Submit Feedback</a></li>
+        <li><a href="#" class="nav-btn" onclick="event.preventDefault(); studentLogout();">🚪 Logout</a></li>
+      </ul>
+      <div class="mobile-menu-toggle" id="mobileMenuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Feedback Form Page Header -->
+  <section class="form-section" style="padding-top: 100px; padding-bottom: 2rem;">
+    <div class="form-container">
+      <div class="form-header" style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem;">
+          📝 Submit Your Feedback
+        </h1>
+        <p style="font-size: 1.1rem; color: var(--text-secondary);">
+          Share your thoughts and help us improve the learning experience
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Form Section -->
+  <section class="form-section" id="feedback">
+    <div class="form-container">
+      <div class="form-card">
+        <div class="form-header">
+          <h2>Share Your Feedback</h2>
+          <p>Your opinion matters. Help us improve the learning experience.</p>
+        </div>
+        <div class="tips-card">
+          <span class="tips-icon">💡</span>
+          <p class="tips-text"><strong>Tips:</strong> Your feedback helps us improve teaching quality. Be specific about what you understood or didn't understand.</p>
+        </div>
+        <form id="feedbackForm">
+          <input type="hidden" id="feedback_token" value="">
+          {% if courses %}
+          <div class="form-group">
+            <label class="form-label">📚 Select Course *</label>
+            <select id="course_id" class="form-select" required onchange="filterTeachers()">
+              <option value="">-- Select Course --</option>
+              {% for course in courses %}
+              <option value="{{ course.id }}">{{ course.code }} - {{ course.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">👨‍🏫 Select Teacher *</label>
+            <select id="teacher_id" class="form-select" required>
+              <option value="">-- Select Teacher --</option>
+              {% for teacher in teachers %}
+              <option value="{{ teacher.id }}" data-courses="{{ teacher.course_assignments|map(attribute='course_id')|list if teacher.course_assignments else [] }}">{{ teacher.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+          <div class="form-group">
+            <label class="form-label">🎓 Lecture Type *</label>
+            <div class="lecture-type">
+              <input type="radio" id="theory" name="lectureType" value="Theory">
+              <label for="theory">Theory</label>
+              <input type="radio" id="practical" name="lectureType" value="Practical">
+              <label for="practical">Practical</label>
+              <input type="radio" id="seminar" name="lectureType" value="Seminar">
+              <label for="seminar">Seminar</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">⭐ Overall Rating *</label>
+            <div class="rating-container" id="ratingContainer">
+              <span class="rating-star" data-rating="1">★</span>
+              <span class="rating-star" data-rating="2">★</span>
+              <span class="rating-star" data-rating="3">★</span>
+              <span class="rating-star" data-rating="4">★</span>
+              <span class="rating-star" data-rating="5">★</span>
+            </div>
+            <input type="hidden" id="rating" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">✅ What worked well? (Optional)</label>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="clarity" name="positive" value="Clarity">
+                <label for="clarity">Clear explanation</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="engagement" name="positive" value="Engagement">
+                <label for="engagement">Engaging presentation</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="examples" name="positive" value="Examples">
+                <label for="examples">Good examples</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="pace" name="positive" value="Pace">
+                <label for="pace">Good pace</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">💬 Your Feedback *</label>
+            <textarea id="feedback" class="form-textarea" placeholder="Write your feedback here... (e.g., 'The lecture was clear and easy to understand' or 'I didn't understand the concept')" required></textarea>
+          </div>
+          <button type="button" onclick="sendFeedback()" class="submit-btn">Submit Feedback</button>
+          <div id="resultBox" class="result-box"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+  <script>
+    // Navigation scroll effect
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const navMenu = document.getElementById('navMenu');
+    
+    mobileMenuToggle.addEventListener('click', function() {
+      navMenu.classList.toggle('active');
+    });
+
+    // Close mobile menu when clicking on a link
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', function() {
+        navMenu.classList.remove('active');
+      });
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Star rating functionality
+    document.querySelectorAll('.rating-star').forEach(star => {
+      star.addEventListener('click', function() {
+        const rating = this.dataset.rating;
+        document.getElementById('rating').value = rating;
+        document.querySelectorAll('.rating-star').forEach(s => {
+          s.classList.remove('active');
+        });
+        for (let i = 0; i < rating; i++) {
+          document.querySelectorAll('.rating-star')[i].classList.add('active');
+        }
+      });
+    });
+    // Filter teachers by course
+    function filterTeachers() {
+      const courseId = document.getElementById('course_id').value;
+      const teacherSelect = document.getElementById('teacher_id');
+      if (!teacherSelect) return;
+      
+      const teachers = teacherSelect.querySelectorAll('option');
+      teachers.forEach(teacher => {
+        if (teacher.value === "") {
+          teacher.style.display = "block";
+          return;
+        }
+        const teacherCourses = JSON.parse(teacher.dataset.courses || "[]");
+        if (courseId === "" || teacherCourses.includes(parseInt(courseId))) {
+          teacher.style.display = "block";
+        } else {
+          teacher.style.display = "none";
+        }
+      });
+      teacherSelect.value = "";
+    }
+
+    async function sendFeedback() {
+      const box = document.getElementById('resultBox');
+      const feedbackEl = document.querySelector('textarea') || document.getElementById('feedback') || document.getElementById('feedback_text');
+      const feedback = feedbackEl?.value?.trim() || '';
+      const rating = document.getElementById('rating')?.value || '0';
+      const lectureType = document.querySelector('input[name="lectureType"]:checked')?.value || '';
+      const token = document.getElementById('feedback_token')?.value || '';
+
+      if (!feedback || feedback.length < 5) {
+        box.style.display = 'block';
+        box.className = 'error';
+        box.innerText = '⚠️ Please write your feedback (at least 5 characters)!';
+        return;
+      }
+
+      box.style.display = 'block';
+      box.className = '';
+      box.innerText = '⏳ Submitting...';
+
+      const courseId = document.getElementById('course_id')?.value || '';
+      const teacherId = document.getElementById('teacher_id')?.value || '';
+
+      try {
+        const res = await fetch('/submit_feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'Anonymous',
+            reg: 'Anonymous',
+            section: 'Anonymous',
+            feedback: feedback + (lectureType ? ' [' + lectureType + ']' : '') + ' [Rating: ' + rating + '/5]',
+            token: token,
+            rating_overall: rating,
+            course_id: courseId,
+            teacher_id: teacherId
+          })
+        });
+
+        if (!res.ok) {
+          box.className = 'error';
+          box.innerText = '❌ Server error: ' + res.status;
+          console.error('HTTP error:', res.status);
+          return;
+        }
+
+        const data = await res.json();
+        console.log('Server response:', data);
+
+        if (data && (data.success || data.message)) {
+          box.className = 'success';
+          box.innerText = '✅ ' + (data.message || 'Feedback submitted successfully! Thank you.');
+        } else {
+          box.className = 'error';
+          box.innerText = '❌ Unexpected response from server';
+          console.error('Invalid response:', data);
+          return;
+        }
+
+        setTimeout(() => {
+          document.getElementById('feedback').value = '';
+          document.getElementById('rating').value = '0';
+          document.querySelectorAll('.rating-star').forEach(s => s.classList.remove('active'));
+          box.style.display = 'none';
+        }, 3000);
+
+      } catch (err) {
+        box.className = 'error';
+        box.innerText = '❌ Error: ' + err.message;
+      }
+    }
+    document.getElementById('feedback').addEventListener('keypress', function(e) {
+      if (e.ctrlKey && e.key === 'Enter') {
+        sendFeedback();
+      }
+    });
+
+    // Student logout function
+    async function studentLogout() {
+      if (confirm("Are you sure you want to logout?")) {
+        try {
+          await fetch("/api/student/logout", { method: "POST" });
+          window.location.href = "/";
+        } catch (error) {
+          window.location.href = "/";
+        }
+      }
+    }
+  </script>
+</body>
+</html>

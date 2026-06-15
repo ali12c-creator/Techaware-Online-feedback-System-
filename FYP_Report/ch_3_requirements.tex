@@ -1,0 +1,565 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CHAPTER 3 – REQUIREMENT ANALYSIS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Requirement Analysis}
+
+%===========================================================
+\section{Introduction to Requirement Analysis}
+%===========================================================
+
+This chapter presents a structured and formal specification of system requirements for the TechAware AI-Based Feedback System. The purpose of this chapter is to clearly define what the system shall accomplish before proceeding to the system design phase. The requirements documented in this chapter serve as a contractual foundation for implementation, validation, and system testing.
+
+The requirement analysis includes requirement elicitation techniques, identification of stakeholders, use case modeling, functional requirements, non-functional requirements, and external interface requirements. All requirements are written in measurable and testable format using standard requirement engineering principles.
+
+
+%===========================================================
+\section{Requirement Elicitation Techniques}
+%===========================================================
+
+This section describes the techniques used to gather and refine system requirements. Requirement elicitation ensures alignment between stakeholder expectations and system capabilities.
+
+Requirements for this project were identified using the following techniques:
+
+\begin{itemize}
+    \item Stakeholder interviews with faculty members and students to capture feedback process expectations and pain points.
+    \item Literature review of existing feedback management systems and sentiment analysis research.
+    \item Analysis of existing solutions (Google Forms, Moodle, SurveyMonkey) to identify functional gaps.
+    \item Examination of NLP libraries (TextBlob, NLTK) for sentiment analysis feasibility.
+    \item Observation of current feedback workflow processes at COMSATS University Islamabad, Vehari Campus.
+\end{itemize}
+
+
+%===========================================================
+\section{User Classes and Characteristics}
+%===========================================================
+
+This section identifies different user categories interacting with the system. Each user class is defined along with their responsibilities, access privileges, and technical proficiency level. This classification supports role-based access control and requirement mapping.
+
+\begin{table}[H]
+\centering
+\caption{User Classes and Characteristics}
+
+\begin{tabularx}{\textwidth}{|p{3cm}|X|p{3cm}|}
+\hline
+\textbf{User Class} & \textbf{Description} & \textbf{Technical Level} \\
+\hline
+Administrator & Manages system configuration, user accounts, departments, batches, sections, courses, timetables, and views all feedback analytics. & Advanced \\
+\hline
+Teacher & Reviews student feedback, views sentiment analysis results and AI suggestions, marks student attendance, manages own profile, and accesses performance dashboard. & Intermediate \\
+\hline
+Student & Submits feedback for attended lectures through a structured form with ratings and text comments. Views personal timetable and feedback history. & Basic \\
+\hline
+Batch Advisor & Monitors teacher performance across assigned batches, receives automated alerts for low-performing teachers, and views batch-level statistics. & Intermediate \\
+\hline
+\end{tabularx}
+
+\end{table}
+
+
+%===========================================================
+\section{System Overview}
+%===========================================================
+
+The TechAware system operates within a three-tier layered architecture designed to support modular interaction between user interfaces, business logic, and data storage. The presentation layer consists of HTML/CSS/JavaScript templates rendered by the Flask templating engine. The application layer implements all business logic including feedback processing, sentiment analysis, suggestion generation, and email notification in Python Flask. The data layer uses SQLAlchemy ORM with SQLite database to manage 12 interrelated tables.
+
+The system supports role-based interactions through four distinct portals and ensures secure communication between internal modules and external services including Gmail SMTP for email delivery and Chart.js CDN for data visualization.
+
+
+%===========================================================
+\section{Use Case Model}
+%===========================================================
+
+The use case model represents high-level system interactions between actors and system functionalities. It defines system boundaries and captures functional behavior from a user perspective.
+
+
+%===========================================================
+\subsection{Use Case Diagram}
+%===========================================================
+
+\begin{figure}[H]
+\centering
+\resizebox{0.9\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=3.5cm and 2.8cm,
+    every node/.style={font=\small},
+    actor/.style={inner sep=2pt, align=center, text width=2.2cm},
+    usecase/.style={ellipse, draw=black!70, fill=white, minimum width=3.0cm, minimum height=1cm, align=center, text width=2.8cm, font=\small}
+]
+
+% System boundary
+\node[draw, rectangle, rounded corners, minimum width=13cm, minimum height=6.5cm] (sys) {\textbf{TechAware Feedback System}};
+
+% Use case nodes (inside)
+\node[usecase] (uc_submit) at (-2,1) {Submit Feedback};
+\node[usecase] (uc_dashboard) at (2,1) {Access Teacher Dashboard};
+\node[usecase] (uc_manage) at (0,-0.6) {Manage System Entities};
+\node[usecase] (uc_report) at (4,-0.6) {Generate PDF Report};
+
+% Actors (outside, represented simply but clearly)
+\node[actor] (act_student) at (-6,1.8) {\small Student};
+\node[actor] (act_teacher) at (-6,-1) {\small Teacher};
+\node[actor] (act_admin) at (6,1.8) {\small Administrator};
+\node[actor] (act_advisor) at (6,-1) {\small Batch Advisor};
+
+% Connections: straight lines from actors to use cases
+\draw[-] (act_student.east) -- ++(0.4,0) |- (uc_submit.west);
+\draw[-] (act_student.east) -- ++(0.4,0) |- (uc_dashboard.west);
+\draw[-] (act_teacher.west) -- ++(-0.4,0) |- (uc_dashboard.east);
+\draw[-] (act_admin.west) -- ++(-0.4,0) |- (uc_manage.east);
+\draw[-] (act_advisor.west) -- ++(-0.4,0) |- (uc_report.east);
+
+% Internal relations (usecase to usecase)
+\draw[-] (uc_submit) -- (uc_dashboard);
+\draw[-] (uc_manage) -- (uc_report);
+
+\end{tikzpicture}%
+}
+\caption{Use Case Diagram of TechAware AI-Based Feedback System}
+\label{fig:usecase}
+\end{figure}
+
+The above diagram illustrates the interaction between actors (Student, Teacher, Administrator, Batch Advisor) and major system functionalities including feedback submission, sentiment analysis, dashboard access, attendance management, and report generation.
+
+
+%===========================================================
+\subsection{Use Case Descriptions}
+%===========================================================
+
+This section provides detailed tabular specifications of major use cases. These use cases form the basis for deriving functional requirements.
+
+\subsubsection{Module 1: Student Feedback Submission}
+
+Below are the detailed use cases for the student feedback module.
+
+\begin{table}[H]
+\centering
+\caption{UC-1.1: Submit Feedback}
+
+\begin{tabularx}{\textwidth}{
+|>{\raggedright\arraybackslash}p{3.5cm}
+|>{\raggedright\arraybackslash}X|}
+
+\hline
+\textbf{Use Case ID} & UC-1.1 \\ \hline
+\textbf{Use Case Name} & Submit Feedback \\ \hline
+\textbf{Actors} & Student \\ \hline
+\textbf{Description} & This use case describes how a student submits feedback for an attended lecture session. \\ \hline
+\textbf{Trigger} & Student accesses the feedback form after lecture completion. \\ \hline
+\textbf{Preconditions} & Student is logged in and was marked present in the lecture session. \\ \hline
+\textbf{Postconditions} & Feedback is stored with sentiment analysis results, and email notification is sent to the teacher. \\ \hline
+\textbf{Normal Flow} &
+\begin{enumerate}
+    \item Student selects the pending feedback session.
+    \item Student fills in ratings (clarity, punctuality, material quality, communication, overall).
+    \item Student enters text feedback (minimum 10 characters).
+    \item System validates all required fields.
+    \item System performs sentiment analysis using TextBlob.
+    \item System generates AI-powered suggestions.
+    \item System stores feedback and sends email notification to teacher.
+    \item Confirmation message with sentiment result is displayed.
+\end{enumerate}
+\\ \hline
+\textbf{Alternative Flow} &
+If validation fails (missing fields or feedback text too short), the system displays appropriate error messages and the form is not submitted.
+\\ \hline
+
+\end{tabularx}
+
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\caption{UC-1.2: Teacher Dashboard Access}
+
+\begin{tabularx}{\textwidth}{
+|>{\raggedright\arraybackslash}p{3.5cm}
+|>{\raggedright\arraybackslash}X|}
+
+\hline
+\textbf{Use Case ID} & UC-1.2 \\ \hline
+\textbf{Use Case Name} & Access Teacher Dashboard \\ \hline
+\textbf{Actors} & Teacher \\ \hline
+\textbf{Description} & This use case describes how a teacher accesses the analytics dashboard to view feedback results. \\ \hline
+\textbf{Trigger} & Teacher navigates to the dashboard page after login. \\ \hline
+\textbf{Preconditions} & Teacher is authenticated with valid credentials. \\ \hline
+\textbf{Postconditions} & Dashboard displays statistics, charts, AI suggestions, and feedback list. \\ \hline
+\textbf{Normal Flow} &
+\begin{enumerate}
+    \item Teacher enters email and password on login page.
+    \item System validates credentials against database.
+    \item System redirects to teacher dashboard.
+    \item Dashboard loads statistics (understood, not understood, neutral counts).
+    \item Chart.js renders doughnut chart for sentiment distribution.
+    \item AI suggestions panel displays generated recommendations.
+    \item Feedback list shows individual entries in reverse chronological order.
+\end{enumerate}
+\\ \hline
+\textbf{Alternative Flow} &
+If credentials are invalid, the system displays an error message and the teacher remains on the login page.
+\\ \hline
+
+\end{tabularx}
+
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\caption{UC-1.3: Admin System Management}
+
+\begin{tabularx}{\textwidth}{
+|>{\raggedright\arraybackslash}p{3.5cm}
+|>{\raggedright\arraybackslash}X|}
+
+\hline
+\textbf{Use Case ID} & UC-1.3 \\ \hline
+\textbf{Use Case Name} & Manage System Entities \\ \hline
+\textbf{Actors} & Administrator \\ \hline
+\textbf{Description} & This use case describes how an administrator manages departments, batches, sections, courses, teachers, and students. \\ \hline
+\textbf{Trigger} & Administrator accesses the admin management panel. \\ \hline
+\textbf{Preconditions} & Administrator is authenticated with admin role credentials. \\ \hline
+\textbf{Postconditions} & System entities are created, updated, or deleted as requested. \\ \hline
+\textbf{Normal Flow} &
+\begin{enumerate}
+    \item Administrator logs in to admin portal.
+    \item Administrator selects entity type (Department, Batch, Section, etc.).
+    \item Administrator performs CRUD operation (Create, Read, Update, Delete).
+    \item System validates input and updates database.
+    \item Confirmation message is displayed.
+\end{enumerate}
+\\ \hline
+\textbf{Alternative Flow} &
+If validation fails (duplicate entries, missing required fields), the system displays error messages.
+\\ \hline
+
+\end{tabularx}
+
+\end{table}
+
+
+%===========================================================
+\subsection{Event-Response Table}
+%===========================================================
+
+The event-response table defines how the system reacts to significant internal and external events.
+
+\begin{table}[H]
+\centering
+\caption{Event-Response Table}
+
+\begin{tabularx}{\textwidth}{
+|>{\raggedright\arraybackslash}p{3cm}
+|>{\raggedright\arraybackslash}p{3.5cm}
+|>{\raggedright\arraybackslash}X|}
+
+\hline
+\textbf{Event} & \textbf{Source} & \textbf{System Response} \\ \hline
+
+User Login Attempt & Student / Teacher / Admin & Validate credentials against database and grant or deny access to role-specific portal. \\ \hline
+
+Feedback Submission & Student & Perform sentiment analysis, generate AI suggestions, store feedback, and send email notification to teacher. \\ \hline
+
+Lecture Completion & Teacher & Open feedback window for present students and send feedback request notifications. \\ \hline
+
+Attendance Marking & Teacher & Record student attendance status (Present/Absent/Late) for the lecture session. \\ \hline
+
+PDF Export Request & Teacher / Admin & Generate PDF report with feedback statistics using ReportLab and return downloadable file. \\ \hline
+
+Low Performance Alert & System & Send automated email notification to Batch Advisor when teacher performance drops below threshold. \\ \hline
+
+\end{tabularx}
+
+\end{table}
+
+%===========================================================
+\section{Functional Requirements}
+%===========================================================
+
+Functional requirements define the core services and behaviors that the system shall provide. 
+These requirements are derived directly from the use case model presented in Section 3.5. 
+Each requirement is uniquely identified, measurable, and written using formal specification language.
+
+All functional requirements follow IEEE-style structure and are categorized by system modules.
+
+
+%===========================================================
+\subsection{Module 1: User Management}
+%===========================================================
+
+\subsubsection{FR-1.1 User Authentication}
+
+\begin{table}[H]
+\centering
+\caption{Functional Requirement -- User Authentication}
+
+\begin{tabularx}{\textwidth}{|p{3cm}|X|}
+\hline
+\textbf{Identifier} & FR-1.1 \\
+\hline
+\textbf{Title} & User Authentication \\
+\hline
+\textbf{Requirement} & The system shall authenticate users (Students, Teachers, Administrators, Batch Advisors) using email and hashed password credentials before granting access to role-specific portals. \\
+\hline
+\textbf{Source} & Stakeholder Requirement \\
+\hline
+\textbf{Rationale} & Ensures secure, role-based access to system functionalities. \\
+\hline
+\textbf{Dependencies} & Database Connectivity, bcrypt Password Hashing \\
+\hline
+\textbf{Priority} & High \\
+\hline
+\end{tabularx}
+
+\end{table}
+
+
+
+%===========================================================
+\subsection{Module 2: Feedback Collection and Sentiment Analysis}
+%===========================================================
+
+\subsubsection{FR-2.1 Feedback Submission}
+
+\begin{table}[H]
+\centering
+\caption{Functional Requirement -- Feedback Submission and Sentiment Analysis}
+
+\begin{tabularx}{\textwidth}{|p{3cm}|X|}
+\hline
+\textbf{Identifier} & FR-2.1 \\
+\hline
+\textbf{Title} & Submit Feedback with Sentiment Analysis \\
+\hline
+\textbf{Requirement} & The system shall accept student feedback consisting of multi-dimensional star ratings and free-text comments, perform real-time sentiment analysis using TextBlob (polarity and subjectivity scoring), classify the feedback as Understood/Not Understood/Neutral, generate keyword-based AI suggestions, and store all results in the database. \\
+\hline
+\textbf{Source} & System Requirement Specification \\
+\hline
+\textbf{Rationale} & Enables automated analysis of student feedback to provide actionable insights to teachers. \\
+\hline
+\textbf{Dependencies} & TextBlob Library, Database Connectivity, User Authentication Module \\
+\hline
+\textbf{Priority} & High \\
+\hline
+\end{tabularx}
+
+\end{table}
+
+
+
+%===========================================================
+\subsection{Module 3: Reporting and Email Notification}
+%===========================================================
+
+\subsubsection{FR-3.1 Email Notification and Report Generation}
+
+\begin{table}[H]
+\centering
+\caption{Functional Requirement -- Email Notification and Reporting}
+
+\begin{tabularx}{\textwidth}{|p{3cm}|X|}
+\hline
+\textbf{Identifier} & FR-3.1 \\
+\hline
+\textbf{Title} & Automated Email Notifications and PDF Reports \\
+\hline
+\textbf{Requirement} & The system shall send automated email notifications to teachers after each feedback submission containing feedback details, sentiment results, and AI suggestions. The system shall also generate downloadable PDF reports with formatted feedback statistics using ReportLab. \\
+\hline
+\textbf{Source} & Business Requirement \\
+\hline
+\textbf{Rationale} & Supports timely communication of feedback results and enables offline report access. \\
+\hline
+\textbf{Dependencies} & Gmail SMTP Service, ReportLab Library, Feedback Module \\
+\hline
+\textbf{Priority} & Medium \\
+\hline
+\end{tabularx}
+
+\end{table}
+
+
+
+%===========================================================
+\section{Non-Functional Requirements}
+%===========================================================
+
+Non-functional requirements define quality attributes that describe how the system performs. 
+These requirements are measurable and support system reliability, usability, performance, 
+security, and maintainability.
+
+%===========================================================
+\subsection{Performance Requirements}
+%===========================================================
+
+\begin{itemize}
+\item PER-1: The system shall load the main dashboard within 2 seconds under normal operating conditions.
+\item PER-2: The system shall support at least 100 concurrent users.
+\item PER-3: Sentiment analysis processing shall be completed within 0.5 seconds per feedback submission.
+\item PER-4: API response time shall not exceed 1 second for standard operations.
+\end{itemize}
+
+
+%===========================================================
+\subsection{Security Requirements}
+%===========================================================
+
+\begin{itemize}
+\item SEC-1: The system shall implement secure authentication using email and hashed password credentials.
+\item SEC-2: Passwords shall be encrypted using bcrypt hashing algorithm via Werkzeug.
+\item SEC-3: Sensitive data shall be transmitted using HTTPS protocol in production deployment.
+\item SEC-4: Role-based access control shall be enforced to restrict users to their designated portals.
+\item SEC-5: CSRF protection shall be implemented to prevent cross-site request forgery attacks.
+\end{itemize}
+
+
+%===========================================================
+\subsection{Reliability Requirements}
+%===========================================================
+
+\begin{itemize}
+\item REL-1: The system shall maintain at least 99\% uptime during academic sessions.
+\item REL-2: System failures shall not result in loss of submitted feedback data.
+\item REL-3: Database backup mechanisms shall be implemented to support disaster recovery.
+\end{itemize}
+
+
+%===========================================================
+\subsection{Usability Requirements}
+%===========================================================
+
+\begin{itemize}
+\item USE-1: The interface shall be intuitive and navigable with minimal training for all user roles.
+\item USE-2: Clear and meaningful error messages shall be displayed for all validation failures.
+\item USE-3: The system shall follow consistent UI/UX design principles across all portals.
+\item USE-4: The application shall be responsive and accessible on desktop and mobile browsers.
+\end{itemize}
+
+
+%===========================================================
+\subsection{Scalability Requirements}
+%===========================================================
+
+\begin{itemize}
+\item SCA-1: The database design shall support migration from SQLite to PostgreSQL or MySQL for larger deployments.
+\item SCA-2: The system architecture shall allow horizontal scaling through load balancing.
+\item SCA-3: The modular design shall support addition of new modules without major restructuring.
+\end{itemize}
+
+
+%===========================================================
+\subsection{Maintainability Requirements}
+%===========================================================
+
+\begin{itemize}
+\item MAIN-1: The system shall follow modular architecture with separated models, routes, and templates.
+\item MAIN-2: Source code shall be documented with comments and a comprehensive README file.
+\item MAIN-3: Future updates shall be integrated without major system restructuring through the use of ORM and templating patterns.
+\end{itemize}
+
+
+
+%===========================================================
+\section{External Interface Requirements}
+%===========================================================
+
+This section defines how the system interacts with external entities including 
+users, hardware devices, software systems, and communication networks.
+
+
+%===========================================================
+\subsection{User Interface Requirements}
+%===========================================================
+
+\begin{itemize}
+\item UI-1: The system shall provide a graphical web-based user interface accessible through modern browsers (Chrome, Firefox, Safari, Edge).
+\item UI-2: Standard font sizes of 12--14pt shall be used to ensure readability across all pages.
+\item UI-3: Layout shall be responsive across desktop and mobile devices using CSS media queries.
+\item UI-4: Navigation shall remain consistent across all modules with a unified header and menu structure.
+\end{itemize}
+
+
+%===========================================================
+\subsection{Hardware Interface Requirements}
+%===========================================================
+
+\begin{itemize}
+\item HI-1: The system shall operate on standard computing devices including desktops, laptops, tablets, and smartphones.
+\item HI-2: The server shall require minimum 4GB RAM and standard CPU for Flask application hosting.
+\item HI-3: No specialized hardware (GPU, biometric devices) is required for system operation.
+\end{itemize}
+
+
+%===========================================================
+\subsection{Software Interface Requirements}
+%===========================================================
+
+\begin{itemize}
+\item SI-1: The system shall interact with SQLite relational database through SQLAlchemy ORM.
+\item SI-2: TextBlob NLP library shall be integrated for sentiment analysis processing.
+\item SI-3: ReportLab library shall be integrated for PDF report generation.
+\item SI-4: Chart.js CDN shall be integrated for frontend data visualization (doughnut charts).
+\end{itemize}
+
+
+%===========================================================
+\subsection{Communication Interface Requirements}
+%===========================================================
+
+\begin{itemize}
+\item CI-1: The system shall use HTTP protocol for development and HTTPS for production deployment.
+\item CI-2: RESTful API endpoints shall be used for frontend-backend communication via AJAX.
+\item CI-3: SMTP protocol with TLS encryption shall be used for email notification delivery through Gmail (port 587).
+\item CI-4: JSON format shall be used for all API request and response data exchange.
+\end{itemize}
+
+
+
+%===========================================================
+\section{Assumptions and Dependencies}
+%===========================================================
+
+This section lists assumptions made during requirement analysis and system design planning.
+
+\begin{itemize}
+\item The system assumes stable internet connectivity for web application access and email delivery.
+\item Gmail SMTP service is assumed to remain available for email notifications; app password configuration is required.
+\item Users are assumed to possess basic digital literacy to operate web browser interfaces.
+\item Python 3.8+ runtime environment with pip package manager is assumed to be available on the deployment server.
+\item TextBlob NLTK corpora are assumed to be downloaded and available for sentiment analysis.
+\item Chart.js CDN is assumed to be accessible for frontend chart rendering.
+\end{itemize}
+
+
+
+%===========================================================
+\section{Requirement Traceability Matrix}
+%===========================================================
+
+This matrix maps project objectives to functional requirements to ensure alignment and completeness.
+
+\begin{table}[H]
+\centering
+\caption{Requirement Traceability Matrix}
+
+\begin{tabularx}{\textwidth}{|p{3cm}|p{3cm}|X|}
+\hline
+\textbf{Objective} & \textbf{Use Case} & \textbf{Functional Requirement} \\ \hline
+BO-1 & UC-1.1 & FR-2.1 (Feedback Submission) \\ \hline
+BO-2 & UC-1.1 & FR-2.1 (Sentiment Analysis) \\ \hline
+BO-3 & UC-1.1 & FR-2.1 (AI Suggestions) \\ \hline
+BO-4 & UC-1.2, UC-1.3 & FR-1.1 (User Authentication) \\ \hline
+BO-5 & UC-1.2 & FR-3.1 (Email Notification and Reporting) \\ \hline
+\end{tabularx}
+
+\end{table}
+
+
+
+%===========================================================
+\section*{Chapter Summary}
+%===========================================================
+
+This chapter presented a structured requirement analysis of the TechAware AI-Based Feedback System. 
+It defined requirement elicitation techniques used during the project, identified four user classes (Student, Teacher, Administrator, Batch Advisor), and presented the use case model with three detailed use case descriptions and an event-response table. Functional requirements were specified across three modules: User Management, Feedback Collection and Sentiment Analysis, and Reporting and Email Notification. Non-functional requirements covering performance, security, reliability, usability, scalability, and maintainability were documented. External interface requirements for user, hardware, software, and communication interfaces were specified. A traceability matrix was included to ensure alignment between business objectives and implementation requirements. 
+These requirements form the formal foundation for the system design presented in the next chapter.

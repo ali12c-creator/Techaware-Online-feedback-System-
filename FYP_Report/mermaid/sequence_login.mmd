@@ -1,0 +1,24 @@
+sequenceDiagram
+    autonumber
+    participant U as 👤 User
+    participant B as 🖥️ Browser
+    participant F as ⚙️ Flask App
+    participant DB as 💾 SQLite Database
+
+    U->>B: Enter email and password
+    B->>F: POST /admin_login (AJAX)
+    activate F
+    F->>DB: Query User by email
+    activate DB
+    DB-->>F: Return user record
+    deactivate DB
+    F->>F: Verify password (bcrypt/werkzeug)
+    alt ✅ Password Valid
+        F->>F: Create session (user_id, role, name)
+        F-->>B: JSON {success: true, role: "teacher"}
+        B->>B: Redirect to role-specific dashboard
+    else ❌ Password Invalid
+        F-->>B: JSON {success: false, message: "Invalid credentials"}
+        B-->>U: Display error message
+    end
+    deactivate F

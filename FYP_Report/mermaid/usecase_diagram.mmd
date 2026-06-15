@@ -1,0 +1,87 @@
+graph LR
+    subgraph Actors[" Actors "]
+        direction TB
+        S([" 👤 Student "])
+        T([" 👤 Teacher "])
+        A([" 👤 Administrator "])
+        BA([" 👤 Batch Advisor "])
+    end
+
+    subgraph System["TechAware Feedback System"]
+        direction TB
+        UC17["View Feedback History"]
+        UC14["Change Password"]
+        UC1["Submit Feedback"]
+        UC12["Send Email Notification"]
+        UC2["View Sentiment Analysis"]
+        UC11["Export PDF Report"]
+        UC10["View AI Suggestions"]
+        UC4["Mark Attendance"]
+        UC13["Login / Authenticate"]
+        UC3["Access Dashboard"]
+        UC18["Manage Students"]
+        UC9["Manage Timetable"]
+        UC8["Manage Courses"]
+        UC7["Manage Batches"]
+        UC6["Manage Departments"]
+        UC5["Manage Users CRUD"]
+        UC16["Receive Alerts"]
+        UC15["Monitor Performance"]
+    end
+
+    S --> UC17
+    S --> UC14
+    S --> UC1
+    S --> UC13
+    S --> UC3
+
+    UC1 --> UC12
+    UC1 --> UC2
+
+    T --> UC2
+    T --> UC11
+    T --> UC10
+    T --> UC4
+    T --> UC13
+    T --> UC3
+
+    A --> UC13
+    A --> UC3
+    A --> UC18
+    A --> UC9
+    A --> UC8
+    A --> UC7
+    A --> UC6
+    A --> UC5
+
+    BA --> UC13
+    BA --> UC3
+    BA --> UC16
+    BA --> UC15
+
+    style S fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style T fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style A fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style BA fill:#f8bbd0,stroke:#c62828,stroke-width:2px,color:#000
+
+    style UC1 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC2 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC3 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC4 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC5 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC6 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC7 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC8 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC9 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC10 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC11 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC12 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC13 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC14 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC15 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC16 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC17 fill:#e8eaf6,stroke:#3949ab,color:#000
+    style UC18 fill:#e8eaf6,stroke:#3949ab,color:#000
+
+    style Actors fill:#fffff0,stroke:#999,stroke-width:2px
+    style System fill:#fffde7,stroke:#666,stroke-width:2px

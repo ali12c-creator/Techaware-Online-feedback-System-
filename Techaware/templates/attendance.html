@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - TechAware</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='enhanced-style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .dashboard-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2.5rem 2rem;
+            border-radius: var(--border-radius-lg);
+            color: white;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 1.75rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-card h2 {
+            margin: 0 0 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .attendance-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .attendance-select {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .attendance-table th,
+        .attendance-table td {
+            padding: 0.85rem 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .attendance-table th {
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+            color: #475569;
+        }
+
+        .attendance-radio {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .dashboard-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .dashboard-btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .dashboard-btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .dashboard-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .status-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            background: #ecfdf5;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            display: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .attendance-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+    <nav class="dashboard-navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="TechAware Logo">
+                <span>TechAware</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="/teacher/dashboard" class="nav-link">Dashboard</a></li>
+                <li><a href="/teacher/attendance" class="nav-link active">Attendance</a></li>
+                <li>
+                    <span class="nav-link" style="color: var(--primary-color); font-weight: 600;">
+                        👤 {{ teacher.name if teacher else 'Teacher' }}
+                    </span>
+                </li>
+                <li><a href="/logout" class="nav-btn">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Mark Attendance 📋</h1>
+            <p>Select a class, mark attendance, and send feedback emails automatically.</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>Step 1 - Select Class</h2>
+            <div class="attendance-controls">
+                <select id="timetableSelect" class="form-select attendance-select">
+                    <option value="">-- Select Class --</option>
+                    {% set days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] %}
+                    {% for tt in timetables %}
+                    <option value="{{ tt.id }}">
+                        {{ days[tt.day_of_week] }} {{ tt.start_time.strftime('%I:%M %p') }} - {{ tt.course.code if tt.course else 'Class' }} - Section {{ tt.section.name if tt.section else '' }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button class="dashboard-btn dashboard-btn-primary" onclick="loadStudents()">Load Students</button>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>Step 2 - Mark Students</h2>
+            <div class="table-wrapper">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Roll Number</th>
+                            <th>Present</th>
+                            <th>Absent</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 2rem;">Select a class to load students.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+                <button class="dashboard-btn dashboard-btn-success" onclick="submitAttendance()">Submit Attendance</button>
+            </div>
+
+            <div style="display:flex; justify-content:center;">
+                <p style="color:#a0a0b8; font-size:13px; margin-top:8px; text-align:center;">
+                📧 Emails will automatically be sent to students at lecture end time
+                </p>
+            </div>
+
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentStudents = [];
+
+        async function loadStudents() {
+            const timetableId = document.getElementById('timetableSelect').value;
+            const tableBody = document.getElementById('studentsTableBody');
+
+            if (!timetableId) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">Please select a class.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">Loading...</td></tr>';
+
+            try {
+                const res = await fetch('/api/teacher/get-students', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ timetable_id: timetableId })
+                });
+                const data = await res.json();
+
+                if (!data.success) {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No students found.</td></tr>';
+                    return;
+                }
+
+                currentStudents = data.students || [];
+                if (currentStudents.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No students in this class.</td></tr>';
+                    return;
+                }
+
+                tableBody.innerHTML = '';
+                currentStudents.forEach(student => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${student.name}</td>
+                        <td>${student.registration_number}</td>
+                        <td>
+                            <input type="radio" name="attendance-${student.id}" value="present" checked>
+                        </td>
+                        <td>
+                            <input type="radio" name="attendance-${student.id}" value="absent">
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">Error loading students.</td></tr>';
+            }
+        }
+
+        async function submitAttendance() {
+            const timetableId = document.getElementById('timetableSelect').value;
+            const statusMessage = document.getElementById('statusMessage');
+
+            if (!timetableId || currentStudents.length === 0) {
+                statusMessage.textContent = 'Please load students before submitting.';
+                statusMessage.style.display = 'block';
+                return;
+            }
+
+            const presentStudents = [];
+            const absentStudents = [];
+
+            currentStudents.forEach(student => {
+                const selected = document.querySelector(`input[name="attendance-${student.id}"]:checked`);
+                if (selected && selected.value === 'present') {
+                    presentStudents.push(student.id);
+                } else {
+                    absentStudents.push(student.id);
+                }
+            });
+
+            try {
+                const res = await fetch('/api/teacher/mark-attendance', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        timetable_id: timetableId,
+                        present_students: presentStudents,
+                        absent_students: absentStudents
+                    })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    statusMessage.textContent = `✅ ${data.message}`;
+                    statusMessage.style.display = 'block';
+                } else {
+                    statusMessage.textContent = '❌ Failed to mark attendance.';
+                    statusMessage.style.display = 'block';
+                }
+            } catch (error) {
+                statusMessage.textContent = '❌ Error submitting attendance.';
+                statusMessage.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

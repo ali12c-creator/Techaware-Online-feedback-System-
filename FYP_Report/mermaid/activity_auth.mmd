@@ -1,0 +1,40 @@
+flowchart TD
+    Start(("🟢 Start")) --> A["User Opens<br/>Application URL"]
+    A --> B["Display Login Page<br/>(Student / Admin)"]
+    B --> C["User Enters<br/>Email and Password"]
+    C --> D["Click Login Button"]
+    D --> E["System Queries<br/>Database for User"]
+    E --> F{"User<br/>Found?"}
+    F -->|"No"| G["❌ Display Error:<br/>Invalid Credentials"]
+    G --> C
+    F -->|"Yes"| H["Compare Password<br/>Hash (bcrypt)"]
+    H --> I{"Password<br/>Valid?"}
+    I -->|"No"| G
+    I -->|"Yes"| J["✅ Create User Session<br/>(Flask Session)"]
+    J --> K{"Check User<br/>Role"}
+    K -->|"Student"| L["Redirect to<br/>Student Dashboard"]
+    K -->|"Teacher"| M["Redirect to<br/>Teacher Dashboard"]
+    K -->|"Admin"| N["Redirect to<br/>Admin Panel"]
+    K -->|"Advisor"| O["Redirect to<br/>Advisor View"]
+    L --> End(("🔴 End"))
+    M --> End
+    N --> End
+    O --> End
+
+    style Start fill:#4caf50,stroke:#2e7d32,stroke-width:3px,color:#fff
+    style End fill:#f44336,stroke:#c62828,stroke-width:3px,color:#fff
+    style A fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000
+    style B fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000
+    style C fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000
+    style D fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000
+    style E fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style F fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style G fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000
+    style H fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style I fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style J fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style K fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style L fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style M fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style N fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style O fill:#f8bbd0,stroke:#c62828,stroke-width:2px,color:#000

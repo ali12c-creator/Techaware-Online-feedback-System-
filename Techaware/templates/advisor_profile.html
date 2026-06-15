@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advisor Profile - TechAware</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='enhanced-style.css') }}">
+    <style>
+        body { background: #0f0f1a; color: #fff; font-family: Inter, sans-serif; }
+        .container { max-width: 980px; margin: 48px auto; padding: 24px; }
+        .card { background: #1a1a2e; border-radius: 12px; padding: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+        .header { display:flex; gap:16px; align-items:center; margin-bottom: 16px; }
+        .avatar { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:28px; }
+        .header h1 { margin:0; font-size:20px; }
+        .header p { margin:4px 0 0; color:#bfc6ff; }
+        .info-grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:18px; }
+        .field { display:flex; flex-direction:column; }
+        .field label { font-size:12px; color:#9aa1c7; margin-bottom:6px; font-weight:700; }
+        .field input { background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04); color:#fff; padding:10px 12px; border-radius:8px; }
+        .readonly { opacity:0.9; }
+        .actions { display:flex; gap:12px; margin-top:18px; }
+        .btn { background: linear-gradient(135deg,#667eea,#764ba2); color:white; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:700; }
+        .btn.ghost { background: transparent; border:1px solid rgba(255,255,255,0.06); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="avatar">{{ (user.name[0] if user and user.name else 'A')|upper }}</div>
+                <div>
+                    <h1>{{ user.name if user else 'Batch Advisor' }}</h1>
+                    <p>Role: Batch Advisor</p>
+                    <p style="font-size:13px; color:#9aa1c7">{{ user.email if user else '' }}</p>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="field">
+                    <label>Full Name</label>
+                    <input type="text" value="{{ user_data.name if user_data else '' }}" readonly class="readonly">
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="text" value="{{ user_data.email if user_data else '' }}" readonly class="readonly">
+                </div>
+                <div class="field">
+                    <label>Role</label>
+                    <input type="text" value="Batch Advisor" readonly class="readonly">
+                </div>
+                <div class="field">
+                    <label>Department</label>
+                    <input type="text" value="{{ user_data.department if user_data and user_data.department else '' }}" readonly class="readonly">
+                </div>
+            </div>
+
+            <div class="actions">
+                <a class="btn" href="/change-password">Change Password</a>
+                <a class="btn ghost" href="/batch_advisor/dashboard">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

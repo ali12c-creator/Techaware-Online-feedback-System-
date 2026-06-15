@@ -1,0 +1,22 @@
+stateDiagram-v2
+    [*] --> LectureScheduled : Timetable Entry
+    LectureScheduled --> AttendanceMarking : Teacher starts attendance
+    AttendanceMarking --> NotificationQueued : Students marked present
+    AttendanceMarking --> NoFeedback : All students absent
+    NotificationQueued --> EmailSent : SMTP sends feedback links
+    EmailSent --> FeedbackPending : Awaiting student response
+    FeedbackPending --> FeedbackSubmitted : Student submits form
+    FeedbackPending --> FeedbackExpired : Deadline passed (timeout)
+    FeedbackSubmitted --> SentimentAnalyzed : TextBlob processes text
+    SentimentAnalyzed --> SuggestionsGenerated : AI keyword analysis done
+    SuggestionsGenerated --> StoredInDB : Record saved to SQLite
+    StoredInDB --> DashboardUpdated : Teacher dashboard refreshed
+    DashboardUpdated --> [*] : Cycle complete
+    
+    DashboardUpdated --> PerformanceCheck : Weekly automated check
+    PerformanceCheck --> AlertSent : Score below 50% for 2 weeks
+    PerformanceCheck --> NormalOperation : Score above threshold
+    AlertSent --> [*] : Advisor notified
+    NormalOperation --> [*] : No action needed
+    NoFeedback --> [*] : No students present
+    FeedbackExpired --> [*] : Link expired

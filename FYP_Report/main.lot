@@ -1,0 +1,29 @@
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {1.1}{\ignorespaces Comparative Analysis of Existing Systems}}{3}{table.1.1}%
+\contentsline {table}{\numberline {1.2}{\ignorespaces Tools and Technologies Used in the Project}}{5}{table.1.2}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces User Classes and Characteristics}}{14}{table.3.1}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces UC-1.1: Submit Feedback}}{16}{table.3.2}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces UC-1.2: Teacher Dashboard Access}}{17}{table.3.3}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces UC-1.3: Admin System Management}}{18}{table.3.4}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Event-Response Table}}{18}{table.3.5}%
+\contentsline {table}{\numberline {3.6}{\ignorespaces Functional Requirement -- User Authentication}}{19}{table.3.6}%
+\contentsline {table}{\numberline {3.7}{\ignorespaces Functional Requirement -- Feedback Submission and Sentiment Analysis}}{19}{table.3.7}%
+\contentsline {table}{\numberline {3.8}{\ignorespaces Functional Requirement -- Email Notification and Reporting}}{20}{table.3.8}%
+\contentsline {table}{\numberline {3.9}{\ignorespaces Requirement Traceability Matrix}}{23}{table.3.9}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Data Dictionary -- User Table}}{37}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Data Dictionary -- Feedback Table}}{38}{table.4.2}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces User Table Structure}}{39}{table.4.3}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces External APIs and Libraries Used}}{52}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Deployment Details}}{63}{table.5.2}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Unit Test Cases}}{65}{table.6.1}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Integration Test Cases}}{67}{table.6.2}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Performance Test Results}}{69}{table.6.3}%
+\contentsline {table}{\numberline {6.4}{\ignorespaces Sentiment Analysis Evaluation Metrics}}{70}{table.6.4}%
+\contentsline {table}{\numberline {6.5}{\ignorespaces User Acceptance Testing -- Feedback Summary}}{71}{table.6.5}%
+\contentsline {table}{\numberline {6.6}{\ignorespaces Testing Summary}}{72}{table.6.6}%
+\addvspace {10\p@ }

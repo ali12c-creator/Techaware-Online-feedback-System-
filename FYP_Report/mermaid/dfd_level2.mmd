@@ -1,0 +1,43 @@
+flowchart TD
+    %% External Entities - Rectangles
+    S["Student"]
+    T["Teacher"]
+    SMTP["Gmail SMTP Server"]
+
+    %% Processes - Circles (DFD Standard)
+    P41(("4.1\nValidate\nInput Fields"))
+    P42(("4.2\nAnalyze Sentiment\n(TextBlob)"))
+    P43(("4.3\nClassify\nFeedback"))
+    P44(("4.4\nGenerate AI\nSuggestions"))
+    P45(("4.5\nStore Feedback\nRecord"))
+    P46(("4.6\nSend Teacher\nNotification"))
+
+    %% Data Store - Open-ended rectangle
+    DS1[("D3: Feedback Database")]
+
+    %% Data Flows
+    S -->|"Raw Feedback\n(Ratings + Text)"| P41
+    P41 -->|"Validated Data"| P42
+    P42 -->|"Polarity &\nSubjectivity Scores"| P43
+    P43 -->|"Sentiment Label\n(Pos / Neg / Neutral)"| P44
+    P44 -->|"Suggestions List"| P45
+    P45 -->|"Complete Feedback Record"| DS1
+    P45 -->|"Notification Trigger"| P46
+    P46 -->|"Email Content"| SMTP
+    P46 -->|"Dashboard Update"| T
+
+    %% Styling — External Entities (blue rectangles)
+    style S fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style T fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style SMTP fill:#e0e0e0,stroke:#616161,stroke-width:2px,color:#000
+
+    %% Styling — Processes (orange circles)
+    style P41 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P42 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P43 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P44 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P45 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P46 fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+
+    %% Styling — Data Store (green cylinder)
+    style DS1 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000

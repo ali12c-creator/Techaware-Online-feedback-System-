@@ -1,0 +1,28 @@
+
+% File: executive_summary.tex
+
+\newpage
+\thispagestyle{plain}
+
+\addcontentsline{toc}{section}{Executive Summary}
+
+\begin{center}
+\textbf{\LARGE Executive Summary}
+\end{center}
+
+\vspace{1cm}
+
+\begin{spacing}{1.5}
+
+Traditional student feedback collection methods in educational institutions rely heavily on manual paper-based forms or generic online surveys. These approaches suffer from low response rates, delayed processing, lack of analytical depth, and an inability to provide timely, actionable insights to educators. As a result, teachers often receive feedback that is either too late to act upon or too unstructured to derive meaningful conclusions.
+
+The TechAware AI-Based Feedback System addresses these challenges by providing a comprehensive, web-based platform that automates the entire feedback lifecycle — from collection to analysis to actionable reporting. The system integrates Natural Language Processing (NLP) for real-time sentiment analysis, enabling automatic classification of student feedback as Positive (Understood), Negative (Not Understood), or Neutral. Based on the analysis, AI-powered suggestions are generated to help teachers improve their teaching methodologies.
+
+The system supports four distinct user roles: Students, Teachers, Administrators, and Batch Advisors. Students submit structured feedback after lectures, which includes star ratings across multiple dimensions (clarity, punctuality, material quality, communication, and overall satisfaction) along with free-text comments. Teachers access a dedicated dashboard to view aggregated analytics, sentiment distributions, and AI-generated improvement suggestions. Administrators manage the entire academic infrastructure, including departments, batches, sections, courses, timetables, and user accounts. Batch Advisors receive automated alerts when teacher performance falls below defined thresholds.
+
+The system is built using Python Flask as the backend framework, SQLAlchemy ORM with SQLite for data persistence, TextBlob for sentiment analysis, and HTML/CSS/JavaScript for the frontend. Additional integrations include Chart.js for data visualization, ReportLab for PDF report generation, and SMTP for automated email notifications.
+
+The expected impact of this system is to enhance teaching quality through data-driven feedback, reduce administrative overhead in feedback management, and promote a culture of continuous improvement in academic institutions.
+
+\end{spacing}
+\newpage

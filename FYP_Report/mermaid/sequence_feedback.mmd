@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    participant S as 👤 Student
+    participant B as 🖥️ Browser
+    participant F as ⚙️ Flask App
+    participant TB as 🧠 TextBlob NLP
+    participant AI as 💡 AI Suggestion Engine
+    participant DB as 💾 SQLite Database
+    participant SM as 📧 Gmail SMTP
+    participant T as 👨‍🏫 Teacher
+
+    S->>B: Fill feedback form (ratings + text)
+    B->>F: POST /submit_feedback (AJAX)
+    activate F
+    F->>F: Validate input fields
+    F->>TB: Analyze feedback text
+    activate TB
+    TB->>TB: Calculate polarity (-1.0 to +1.0)
+    TB->>TB: Calculate subjectivity (0.0 to 1.0)
+    TB-->>F: Return polarity, subjectivity
+    deactivate TB
+    F->>F: Classify sentiment (threshold check)
+    F->>AI: Generate suggestions(text, sentiment)
+    activate AI
+    AI->>AI: Keyword matching analysis
+    AI-->>F: Return suggestion list
+    deactivate AI
+    F->>DB: INSERT feedback record
+    DB-->>F: Confirm stored (record ID)
+    F->>SM: Send email notification
+    SM-->>T: Email with feedback details
+    SM-->>F: Delivery status (success)
+    F-->>B: JSON response (sentiment, suggestions)
+    deactivate F
+    B-->>S: Display result with emoji indicator

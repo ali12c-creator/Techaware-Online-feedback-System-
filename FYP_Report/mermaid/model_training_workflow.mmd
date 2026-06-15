@@ -1,0 +1,84 @@
+flowchart TD
+    subgraph Input["📥 Data Input"]
+        A["Raw Feedback Text<br/>(Student Submission)"]
+    end
+
+    subgraph Preprocessing["🔤 Text Preprocessing"]
+        B["Convert to Lowercase"]
+        C["Tokenize Text<br/>(Word Splitting)"]
+        D["Remove Stop Words<br/>(the, is, at, etc.)"]
+    end
+
+    subgraph Analysis["🧠 Sentiment Analysis (TextBlob NLP)"]
+        E["Create TextBlob Object"]
+        F["Calculate Polarity<br/>(-1.0 to +1.0)"]
+        G["Calculate Subjectivity<br/>(0.0 to 1.0)"]
+    end
+
+    subgraph Classification["📊 Sentiment Classification"]
+        H{"Polarity<br/>Threshold<br/>Check"}
+        I["✅ Positive<br/>(Understood)<br/>P > 0.1"]
+        J["❌ Negative<br/>(Not Understood)<br/>P < -0.1"]
+        K["⚖️ Neutral<br/>-0.1 ≤ P ≤ 0.1"]
+    end
+
+    subgraph Suggestions["💡 AI Suggestion Engine"]
+        L["Keyword Extraction<br/>(Pattern Matching)"]
+        M["Category Matching<br/>(Speed, Clarity,<br/>Examples, Visuals)"]
+        N["Generate Context-Specific<br/>Recommendations"]
+    end
+
+    subgraph Output["📤 Output Results"]
+        O["Sentiment Label"]
+        P["Polarity Score"]
+        Q["Subjectivity Score"]
+        R["AI Suggestions List"]
+    end
+
+    A ==> B
+    B --> C
+    C --> D
+    D ==> E
+    E --> F
+    E --> G
+    F --> H
+    G --> Output
+    H -->|"> 0.1"| I
+    H -->|"< -0.1"| J
+    H -->|"else"| K
+    I --> L
+    J --> L
+    K --> L
+    L --> M
+    M --> N
+    N --> R
+    I --> O
+    J --> O
+    K --> O
+    F --> P
+
+    style Input fill:#e3f2fd,stroke:#1565c0,stroke-width:3px
+    style Preprocessing fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
+    style Analysis fill:#fff3e0,stroke:#e65100,stroke-width:3px
+    style Classification fill:#fce4ec,stroke:#c62828,stroke-width:3px
+    style Suggestions fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+    style Output fill:#fffde7,stroke:#f57f17,stroke-width:3px
+
+    style A fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style B fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style C fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style D fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style E fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style F fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style G fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style H fill:#f8bbd0,stroke:#c62828,stroke-width:2px,color:#000
+    style I fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style J fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000
+    style K fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style L fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style M fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style N fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style O fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
+    style P fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
+    style Q fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
+    style R fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000

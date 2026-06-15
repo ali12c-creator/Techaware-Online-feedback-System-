@@ -1,0 +1,251 @@
+% ============================================
+% Chapter 6 – Testing and Evaluation
+% ============================================
+
+\chapter{Testing and Evaluation}
+
+This chapter presents the testing strategies and evaluation 
+procedures used to verify the correctness, reliability, and 
+performance of the implemented system.
+
+Testing ensures that all functional and non-functional 
+requirements defined in earlier chapters are satisfied.
+
+Depending on the project domain (Machine Learning, Web, 
+Mobile Application, Blockchain, etc.), evaluation methods 
+may vary.
+
+% -------------------------------------------------
+% 6.1 Testing Strategy
+% -------------------------------------------------
+
+\section{Testing Strategy}
+
+\textbf{Guidelines (150–200 words):}
+
+In this section:
+\begin{itemize}
+    \item Describe the overall testing approach
+    \item Mention testing types used (Unit, Integration, System)
+    \item Explain manual vs automated testing
+    \item Mention tools used (JUnit, Selenium, PyTest, etc.)
+\end{itemize}
+
+Write detailed explanation here.
+
+% -------------------------------------------------
+% 6.2 Unit Testing
+% -------------------------------------------------
+
+\section{Unit Testing}
+
+Unit testing verifies individual modules independently.
+
+\textbf{Guidelines:}
+\begin{itemize}
+    \item Each major function/module must be tested
+    \item Provide input, expected output, and result
+    \item Mention Pass/Fail status
+\end{itemize}
+
+\subsection{UT-01: User Registration}
+
+\begin{table}[h]
+\centering
+\caption{Unit Test Case – User Registration}
+\begin{tabularx}{\textwidth}{|c|X|X|c|}
+\hline
+\textbf{Test ID} & \textbf{Input} & \textbf{Expected Output} & \textbf{Result} \\
+\hline
+UT-01 & Valid user credentials & Account created successfully & Pass \\
+\hline
+UT-02 & Missing email field & Error message displayed & Pass \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{UT-02: Login Module}
+
+Add more unit test cases similarly.
+
+% -------------------------------------------------
+% 6.3 Integration Testing
+% -------------------------------------------------
+
+\section{Integration Testing}
+
+Integration testing ensures that modules interact correctly.
+
+\textbf{Guidelines (150–200 words):}
+\begin{itemize}
+    \item Describe module interaction testing
+    \item Explain API testing if applicable
+    \item Mention database connectivity validation
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Integration Testing Summary}
+\begin{tabularx}{\textwidth}{|c|X|X|c|}
+\hline
+\textbf{Test ID} & \textbf{Modules Integrated} & \textbf{Expected Result} & \textbf{Result} \\
+\hline
+IT-01 & Frontend + Backend API & Data successfully retrieved & Pass \\
+\hline
+IT-02 & Backend + Database & Record stored correctly & Pass \\
+\hline
+\end{tabularx}
+\end{table}
+
+% -------------------------------------------------
+% 6.4 System Testing
+% -------------------------------------------------
+
+\section{System Testing}
+
+System testing validates the entire application workflow.
+
+\textbf{Guidelines:}
+\begin{itemize}
+    \item Test full user journey
+    \item Test edge cases
+    \item Test error handling
+\end{itemize}
+
+Describe system-level validation here.
+
+% -------------------------------------------------
+% 6.5 Performance Testing
+% -------------------------------------------------
+
+\section{Performance Testing}
+
+\textbf{Guidelines (100–150 words):}
+\begin{itemize}
+    \item Mention response time
+    \item Load handling capability
+    \item Stress testing (if applicable)
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Performance Metrics}
+\begin{tabularx}{\textwidth}{|c|X|c|}
+\hline
+\textbf{Metric} & \textbf{Description} & \textbf{Value} \\
+\hline
+Response Time & Average time per request & 220 ms \\
+\hline
+Concurrent Users & Maximum supported users & 500 \\
+\hline
+\end{tabularx}
+\end{table}
+
+% -------------------------------------------------
+% 6.6 Security Testing (If Applicable)
+% -------------------------------------------------
+
+\section{Security Testing}
+
+\textbf{Guidelines:}
+\begin{itemize}
+    \item Authentication validation
+    \item Authorization testing
+    \item SQL injection testing
+    \item Data encryption validation
+\end{itemize}
+
+Explain security verification here.
+
+% -------------------------------------------------
+% 6.7 Machine Learning Model Evaluation (If Applicable)
+% -------------------------------------------------
+
+\section{Model Evaluation (For ML-Based Projects)}
+
+This section is required only for Machine Learning projects.
+
+\textbf{Guidelines (200–300 words):}
+\begin{itemize}
+    \item Mention dataset split (Train/Test)
+    \item Explain evaluation metrics
+    \item Present confusion matrix
+    \item Compare baseline models
+\end{itemize}
+
+\subsection{Evaluation Metrics}
+
+\begin{itemize}
+    \item Accuracy
+    \item Precision
+    \item Recall
+    \item F1-Score
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Model Performance Comparison}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc}
+\toprule
+\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} \\
+\midrule
+CNN & 94\% & 92\% & 93\% & 92.5\% \\
+Random Forest & 89\% & 88\% & 87\% & 87.5\% \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+
+
+\begin{figure}[h]
+\centering
+% \includegraphics[width=0.6\textwidth]{Figures/confusion_matrix.png}
+\caption{Confusion Matrix}
+\end{figure}
+
+% -------------------------------------------------
+% 6.8 User Acceptance Testing (UAT)
+% -------------------------------------------------
+
+\section{User Acceptance Testing}
+
+\textbf{Guidelines:}
+\begin{itemize}
+    \item Mention number of users tested
+    \item Feedback summary
+    \item Improvements suggested
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{User Feedback Summary}
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\textbf{Feedback} & \textbf{Action Taken} \\
+\hline
+UI improvement needed & Navigation simplified \\
+\hline
+Performance delay observed & Backend optimized \\
+\hline
+\end{tabularx}
+\end{table}
+
+% -------------------------------------------------
+% 6.9 Testing Summary
+% -------------------------------------------------
+
+\section{Testing Summary}
+
+Provide a concise summary of:
+
+\begin{itemize}
+    \item Total test cases executed
+    \item Number of passed cases
+    \item System reliability
+    \item Final system readiness
+\end{itemize}
+
+Conclude this chapter with validation statement that the system 
+meets functional and non-functional requirements.
+

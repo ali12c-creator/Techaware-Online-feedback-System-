@@ -1,0 +1,170 @@
+classDiagram
+    class User {
+        <<Admin/Teacher/Advisor>>
+        +int id
+        +String username
+        +String email
+        +String password_hash
+        +String role
+        +String name
+        +Boolean is_active
+        +DateTime created_at
+        +set_password(password) void
+        +check_password(password) bool
+        +to_dict() dict
+    }
+
+    class Student {
+        <<Entity>>
+        +int id
+        +String registration_number
+        +String name
+        +String email
+        +String password_hash
+        +int department_id
+        +int batch_id
+        +int section_id
+        +String section
+        +String phone
+        +Boolean is_active
+        +set_password(password) void
+        +check_password(password) bool
+        +to_dict() dict
+    }
+
+    class Teacher {
+        <<Entity>>
+        +int id
+        +String name
+        +String email
+        +String employee_id
+        +String department
+        +String designation
+        +Boolean is_active
+        +to_dict() dict
+    }
+
+    class Department {
+        <<Entity>>
+        +int id
+        +String code
+        +String name
+        +String description
+        +Boolean is_active
+        +to_dict() dict
+    }
+
+    class Batch {
+        <<Entity>>
+        +int id
+        +int department_id
+        +String name
+        +int year
+        +String semester
+        +Date start_date
+        +Date end_date
+        +Boolean is_active
+        +to_dict() dict
+    }
+
+    class Section {
+        <<Entity>>
+        +int id
+        +int batch_id
+        +String name
+        +int capacity
+        +int current_students
+        +to_dict() dict
+    }
+
+    class Course {
+        <<Entity>>
+        +int id
+        +String code
+        +String name
+        +int department_id
+        +int credit_hours
+        +String description
+        +to_dict() dict
+    }
+
+    class Feedback {
+        <<Core Entity>>
+        +int id
+        +int student_id
+        +String student_name
+        +String registration_number
+        +int course_id
+        +int teacher_id
+        +String feedback_text
+        +int rating_overall
+        +int rating_clarity
+        +int rating_punctuality
+        +int rating_material_quality
+        +int rating_communication
+        +String sentiment
+        +float polarity
+        +float subjectivity
+        +String suggestions
+        +DateTime created_at
+        +to_dict() dict
+    }
+
+    class Timetable {
+        <<Entity>>
+        +int id
+        +int course_id
+        +int teacher_id
+        +int section_id
+        +int batch_id
+        +int day_of_week
+        +Time start_time
+        +Time end_time
+        +String room
+        +String semester
+        +to_dict() dict
+    }
+
+    class BatchSubject {
+        <<Mapping>>
+        +int id
+        +int batch_id
+        +int course_id
+        +Boolean is_required
+        +to_dict() dict
+    }
+
+    class CourseTeacher {
+        <<Mapping>>
+        +int id
+        +int batch_subject_id
+        +int teacher_id
+        +int section_id
+        +String lecture_type
+        +to_dict() dict
+    }
+
+    class StudentCourse {
+        <<Mapping>>
+        +int id
+        +int student_id
+        +int course_id
+        +String semester
+        +String section
+        +to_dict() dict
+    }
+
+    Department "1" --> "*" Batch : has
+    Department "1" --> "*" Course : offers
+    Department "1" --> "*" Student : enrolls
+    Batch "1" --> "*" Section : contains
+    Batch "1" --> "*" BatchSubject : assigns
+    BatchSubject "1" --> "*" CourseTeacher : maps to
+    Course "1" --> "*" Feedback : receives
+    Teacher "1" --> "*" Feedback : reviewed by
+    Teacher "1" --> "*" CourseTeacher : teaches
+    Student "1" --> "*" Feedback : submits
+    Student "1" --> "*" StudentCourse : registered in
+    Course "1" --> "*" Timetable : scheduled in
+    Teacher "1" --> "*" Timetable : teaches in
+    Section "1" --> "*" Timetable : has schedule

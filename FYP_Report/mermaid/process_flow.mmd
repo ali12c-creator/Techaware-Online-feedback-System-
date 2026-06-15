@@ -1,0 +1,37 @@
+flowchart TD
+    A["👨‍🏫 Teacher Marks<br/>Attendance"] ==> B["💾 System Records<br/>Attendance Data"]
+    B --> C["🔍 Filter Present<br/>Students"]
+    C --> D["🔗 Generate Feedback<br/>Request Links"]
+    D --> E["📧 Send Emails via<br/>SMTP to Present Students"]
+    E ==> F["📬 Student Receives<br/>Email Notification"]
+    F --> G["🖥️ Student Opens<br/>Feedback Form"]
+    G --> H["📝 Student Fills<br/>Ratings and Text"]
+    H --> I["✅ Submit Feedback"]
+    I ==> J["🧠 TextBlob Sentiment<br/>Analysis"]
+    J --> K["📊 Classify Sentiment<br/>(Positive/Negative/Neutral)"]
+    K --> L["💡 Generate AI<br/>Suggestions"]
+    L --> M["💾 Store in Database"]
+    M --> N["📧 Send Email to<br/>Teacher"]
+    N ==> O["📊 Update Teacher<br/>Dashboard"]
+    O --> P{"Performance<br/>Below 50% for<br/>2 Weeks?"}
+    P -->|"Yes"| Q["🚨 Alert Batch<br/>Advisor via Email"]
+    P -->|"No"| R["✅ Continue Normal<br/>Operation"]
+
+    style A fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style B fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style C fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style E fill:#e0e0e0,stroke:#616161,stroke-width:2px,color:#000
+    style F fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style G fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style H fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style I fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style J fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style K fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style L fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style M fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style N fill:#e0e0e0,stroke:#616161,stroke-width:2px,color:#000
+    style O fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style P fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style Q fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000
+    style R fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000

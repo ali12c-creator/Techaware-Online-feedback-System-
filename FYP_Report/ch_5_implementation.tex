@@ -1,0 +1,916 @@
+% ============================================
+% Chapter 5 – Implementation
+% ============================================
+\chapter{Implementation}
+
+This chapter describes the practical implementation of the TechAware AI-Based Feedback System. 
+It explains how the designed architecture was translated into working modules, 
+algorithms, user interfaces, and deployment components.
+
+% -------------------------------------------------
+% 5.1 Development Environment
+% -------------------------------------------------
+
+\section{Development Environment}
+
+This section describes the software and hardware environment used 
+for system implementation.
+
+The development environment consists of the following components:
+
+\begin{itemize}
+    \item \textbf{IDE}: Visual Studio Code with Python and Jinja2 extensions
+    \item \textbf{Programming Language}: Python 3.8+
+    \item \textbf{Web Framework}: Flask 2.3.3
+    \item \textbf{ORM}: Flask-SQLAlchemy 3.0.5
+    \item \textbf{Database}: SQLite (via SQLAlchemy abstraction)
+    \item \textbf{NLP Library}: TextBlob 0.17.1
+    \item \textbf{PDF Generation}: ReportLab 4.0.4
+    \item \textbf{Password Hashing}: bcrypt 4.0.1, Werkzeug 2.3.7
+    \item \textbf{Frontend}: HTML5, CSS3, JavaScript, Chart.js (CDN)
+    \item \textbf{Operating System}: Windows 10/11
+    \item \textbf{Version Control}: Git
+    \item \textbf{Hardware}: Standard desktop/laptop (minimum 4GB RAM, dual-core CPU)
+\end{itemize}
+
+% -------------------------------------------------
+% 5.2 Core Module Implementation
+% -------------------------------------------------
+
+\section{Core Module Implementation}
+
+This section explains how each major module was implemented. The system is organized into modular Python files: \texttt{app.py} (application routes and business logic), \texttt{models.py} (SQLAlchemy database models), and \texttt{database.py} (database initialization and migration).
+
+\subsection{Module 1: User Authentication and Management}
+
+The User Authentication module is implemented in \texttt{app.py} with corresponding data models in \texttt{models.py}. The \texttt{User} model stores credentials with bcrypt-hashed passwords using Werkzeug's \texttt{generate\_password\_hash} and \texttt{check\_password\_hash} functions. Four user roles (admin, teacher, student, batch\_advisor) are supported through a role attribute that determines portal access. Login routes (\texttt{/admin}, \texttt{/student\_login}) validate credentials against the database and redirect to role-specific dashboards. Session management tracks authenticated users across requests.
+
+\subsection{Module 2: Academic Management}
+
+The Academic Management module implements CRUD operations for six entity types: Department, Batch, Section, Course, Teacher, and Student. Each entity is defined as a SQLAlchemy model class in \texttt{models.py} with relationships, constraints, and \texttt{to\_dict()} serialization methods. The admin management panel (\texttt{admin\_manage.html}) provides a tabbed interface for managing all entities through AJAX-based API calls. Batch-Subject assignment and Teacher-Course-Section assignment are handled through junction tables (\texttt{BatchSubject}, \texttt{CourseTeacher}) supporting many-to-many relationships.
+
+\subsection{Module 3: Feedback Collection and Sentiment Analysis}
+
+The Feedback module is the core functional component. The feedback form (\texttt{feedback.html}) collects multi-dimensional star ratings (clarity, punctuality, material quality, communication, overall) and free-text comments. Upon submission, the \texttt{/submit\_feedback} route processes the data: TextBlob analyzes the text to compute polarity (--1.0 to +1.0) and subjectivity (0.0 to 1.0) scores. Sentiment is classified as Understood (polarity $>$ 0.1), Not Understood (polarity $<$ --0.1), or Neutral. The AI suggestion engine performs keyword matching against predefined categories (speed, confusion, examples, visuals, engagement) and generates context-specific recommendations. All results are stored in the Feedback model.
+
+\subsection{Module 4: Dashboard and Analytics}
+
+The Teacher Dashboard (\texttt{dashboard.html}) displays four statistics boxes (Understood, Not Understood, Neutral, Total), a Chart.js doughnut chart for sentiment distribution, an AI suggestions panel showing the 10 most recent generated suggestions, and a reverse-chronological feedback list with color-coded sentiment badges. The dashboard auto-refreshes every 5 seconds by fetching data from the \texttt{/get\_feedback\_summary} API endpoint. The Admin dashboard extends this with system-wide analytics and teacher performance comparisons.
+
+% -------------------------------------------------
+% 5.3 Algorithm Implementation 
+% -------------------------------------------------
+
+\section{Algorithm Implementation}
+
+This section explains the implementation of the core sentiment analysis algorithm used in the system. 
+The TechAware system uses TextBlob-based Natural Language Processing to perform sentiment classification on student feedback text. TextBlob was selected for its simplicity, built-in sentiment analysis capabilities, and ability to compute polarity and subjectivity scores without requiring model training.
+
+The algorithm processes free-text feedback input, calculates sentiment scores, classifies the feedback into predefined categories, and generates keyword-based AI suggestions for teaching improvement.
+
+\subsection{Algorithm 1: TextBlob Sentiment Analysis and Classification}
+
+\textbf{Input:} Raw feedback text string $T$ \\
+\textbf{Output:} Sentiment classification $S$, polarity score $P$, subjectivity score $Sub$, AI suggestions list $Sg$
+
+\textbf{Step-by-Step Working:}
+
+\begin{enumerate}
+    \item Receive raw feedback text from the student submission form.
+    \item Create a TextBlob object from the feedback text.
+    \item Calculate polarity score $P$ (range: --1.0 to +1.0).
+    \item Calculate subjectivity score $Sub$ (range: 0.0 to 1.0).
+    \item Classify sentiment based on polarity thresholds:
+    \begin{itemize}
+        \item If $P > 0.1$: Classify as ``Understood'' (Positive).
+        \item If $P < -0.1$: Classify as ``Not Understood'' (Negative).
+        \item If $-0.1 \leq P \leq 0.1$: Classify as ``Neutral''.
+    \end{itemize}
+    \item Analyze feedback text for predefined keywords:
+    \begin{itemize}
+        \item Speed-related: ``fast'', ``speed'', ``quick'', ``rush''
+        \item Confusion-related: ``confusing'', ``confused'', ``unclear''
+        \item Example-related: ``practical'', ``example'', ``real''
+        \item Visual-related: ``diagram'', ``visual'', ``picture''
+        \item Engagement-related: ``interesting'', ``engaging'', ``fun''
+    \end{itemize}
+    \item Generate AI suggestions based on sentiment and matched keywords.
+    \item Return classification, scores, and suggestions.
+\end{enumerate}
+
+\textbf{Pseudo Code:}
+
+\begin{verbatim}
+Algorithm SentimentAnalysis(feedback_text):
+
+1. blob = TextBlob(feedback_text)
+2. polarity = blob.sentiment.polarity
+3. subjectivity = blob.sentiment.subjectivity
+4. If polarity > 0.1:
+      sentiment = "Understood"
+   Else If polarity < -0.1:
+      sentiment = "Not Understood"
+   Else:
+      sentiment = "Neutral"
+5. suggestions = GenerateSuggestions(feedback_text, sentiment)
+6. Return sentiment, polarity, subjectivity, suggestions
+\end{verbatim}
+
+\textbf{Explanation:}
+
+TextBlob uses a pre-trained lexicon-based approach for sentiment analysis. Each word in the input text is assigned polarity and subjectivity values from a built-in dictionary (based on the Pattern library). The overall text polarity is computed as the average of individual word polarities, weighted by word position and modifiers (negation, intensifiers). This approach provides immediate sentiment scoring without requiring custom model training, making it suitable for real-time feedback analysis in educational contexts.
+
+\subsection{Algorithm 2: AI Suggestion Generation}
+
+\textbf{Input:} Feedback text $T$, Sentiment classification $S$ \\
+\textbf{Output:} List of teaching improvement suggestions $Sg$
+
+\begin{algorithm}[H]
+\caption{AI Suggestion Generation}
+\begin{algorithmic}[1]
+
+\State \textbf{Input:} Feedback text $T$, Sentiment $S$
+\State \textbf{Output:} Suggestion list $Sg$
+
+\Function{GenerateSuggestions}{$text, sentiment$}
+    \State $suggestions \gets$ empty list
+    \State $text\_lower \gets \text{lowercase}(text)$
+    
+    \If{$sentiment = \text{``Not Understood''}$}
+        \If{contains\_keyword($text\_lower$, speed\_keywords)}
+            \State append($suggestions$, ``Slow down the pace and use more examples'')
+        \EndIf
+        \If{contains\_keyword($text\_lower$, confusion\_keywords)}
+            \State append($suggestions$, ``Break complex concepts into smaller parts'')
+        \EndIf
+        \If{contains\_keyword($text\_lower$, example\_keywords)}
+            \State append($suggestions$, ``Include more real-world examples'')
+        \EndIf
+        \If{contains\_keyword($text\_lower$, visual\_keywords)}
+            \State append($suggestions$, ``Use more diagrams and visual aids'')
+        \EndIf
+        \If{$suggestions$ is empty}
+            \State append($suggestions$, ``Consider using interactive teaching methods'')
+        \EndIf
+    \ElsIf{$sentiment = \text{``Understood''}$}
+        \State append($suggestions$, ``Great job! Keep this teaching approach'')
+    \Else
+        \State append($suggestions$, ``Ask for more specific feedback'')
+    \EndIf
+    
+    \State \Return $suggestions$
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm generates teaching improvement suggestions based on sentiment and keyword analysis. For negative feedback, it maps detected keywords to targeted improvement recommendations. For positive feedback, it produces encouraging reinforcement. For neutral feedback, it requests more specific input. The approach is rule-based, deterministic, and suitable for the system's current implementation scope.
+
+\subsection{Algorithm 3: SMTP Email Notification Dispatch}
+
+\textbf{Input:} Recipient email $E$, subject $Sub$, feedback details $FD$ \\
+\textbf{Output:} Email delivery status (Success/Failure)
+
+\begin{algorithm}[H]
+\caption{SMTP Email Notification Dispatch}
+\begin{algorithmic}[1]
+
+\State \textbf{Input:} Recipient email $E$, subject $Sub$, feedback data $FD$
+\State \textbf{Output:} Delivery status
+
+\Function{SendEmailNotification}{$email, subject, feedback\_data$}
+    \State $msg \gets$ CreateMIMEMultipart()
+    \State $msg.From \gets$ SENDER\_EMAIL
+    \State $msg.To \gets email$
+    \State $msg.Subject \gets subject$
+    \State $body \gets$ FormatFeedbackBody($feedback\_data$)
+    \State $msg$.attach(MIMEText($body$, ``plain''))
+    
+    \State \textbf{try:}
+    \State \hspace{1em} $server \gets$ SMTP(``smtp.gmail.com'', 587)
+    \State \hspace{1em} $server$.starttls() \Comment{Enable TLS encryption}
+    \State \hspace{1em} $server$.login(SENDER\_EMAIL, APP\_PASSWORD)
+    \State \hspace{1em} $server$.sendmail(SENDER\_EMAIL, $email$, $msg$)
+    \State \hspace{1em} $server$.quit()
+    \State \hspace{1em} \Return ``Success''
+    \State \textbf{catch} Exception:
+    \State \hspace{1em} Log error message
+    \State \hspace{1em} \Return ``Failure''
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm handles automated email dispatch after each feedback submission. It constructs a MIME-formatted email containing the student's feedback text, sentiment classification, polarity score, and AI-generated suggestions. The SMTP connection uses TLS encryption on port 587 for secure transmission. Error handling ensures that email failures do not disrupt the feedback storage process — the feedback is saved regardless of email delivery status.
+
+\subsection{Algorithm 4: Role-Based Access Control (RBAC)}
+
+\textbf{Input:} HTTP request $R$, user session $S$, allowed roles list $AR$ \\
+\textbf{Output:} Access granted or denied
+
+\begin{algorithm}[H]
+\caption{Role-Based Access Control}
+\begin{algorithmic}[1]
+
+\State \textbf{Input:} Request $R$, Session $S$, Allowed Roles $AR$
+\State \textbf{Output:} Access decision
+
+\Function{CheckAccess}{$request, session, allowed\_roles$}
+    \If{``user\_id'' $\notin$ $session$ \textbf{OR} ``role'' $\notin$ $session$}
+        \State \Return Redirect(``/admin'') \Comment{Unauthenticated}
+    \EndIf
+    
+    \State $user\_role \gets session$[``role'']
+    
+    \If{$user\_role \notin allowed\_roles$}
+        \State \Return JSON(\{``success'': False, ``message'': ``Unauthorized''\}), 403
+    \EndIf
+    
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+The RBAC algorithm is implemented as a Python decorator function that wraps protected route handlers. Before executing any protected endpoint, the decorator verifies that a valid session exists (user is authenticated) and that the user's role is included in the list of allowed roles for that endpoint. This ensures that students cannot access admin endpoints, and teachers cannot perform administrative CRUD operations, enforcing the principle of least privilege.
+
+\subsection{Algorithm 5: Password Hashing and Verification}
+
+\textbf{Input:} Plain text password $P$ \\
+\textbf{Output:} Hashed password $H$ for storage, or Boolean verification result
+
+\begin{algorithm}[H]
+\caption{Password Hashing and Verification}
+\begin{algorithmic}[1]
+
+\Function{HashPassword}{$plain\_password$}
+    \State $bytes \gets$ Encode($plain\_password$, ``utf-8'')
+    \State $salt \gets$ bcrypt.gensalt()
+    \State $hash \gets$ bcrypt.hashpw($bytes$, $salt$)
+    \State \Return Decode($hash$, ``utf-8'')
+\EndFunction
+
+\Function{VerifyPassword}{$plain\_password, stored\_hash$}
+    \If{$stored\_hash$ starts with ``\$2''}
+        \State $bytes \gets$ Encode($plain\_password$, ``utf-8'')
+        \State $hash\_bytes \gets$ Encode($stored\_hash$, ``utf-8'')
+        \State \Return bcrypt.checkpw($bytes$, $hash\_bytes$)
+    \Else
+        \State \Return werkzeug.check\_password\_hash($stored\_hash$, $plain\_password$)
+    \EndIf
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm implements secure password management using bcrypt cryptographic hashing. During registration, passwords are hashed with a randomly generated salt before database storage, ensuring that even identical passwords produce different hash values. During login, the verification function supports both bcrypt hashes (prefixed with \texttt{\$2}) and legacy Werkzeug hashes for backward compatibility. This dual-support approach enables gradual migration of existing password hashes without requiring users to reset their credentials.
+
+\subsection{Algorithm 6: Password Reset Token Generation and Validation}
+
+\textbf{Input:} User email $E$ \\
+\textbf{Output:} Secure time-limited token $T$
+
+\begin{algorithm}[H]
+\caption{Token-Based Password Reset}
+\begin{algorithmic}[1]
+
+\Function{GenerateResetToken}{$email$}
+    \State $serializer \gets$ URLSafeTimedSerializer(SECRET\_KEY)
+    \State $token \gets serializer$.dumps($email$, salt=``password-reset-salt'')
+    \State $reset\_url \gets$ BuildURL(``/reset-password/'', $token$)
+    \State SendEmail($email$, $reset\_url$)
+    \State \Return $token$
+\EndFunction
+
+\Function{ValidateResetToken}{$token$}
+    \State $serializer \gets$ URLSafeTimedSerializer(SECRET\_KEY)
+    \State \textbf{try:}
+    \State \hspace{1em} $email \gets serializer$.loads($token$, salt=``password-reset-salt'', max\_age=3600)
+    \State \hspace{1em} \Return $email$ \Comment{Token valid, return email}
+    \State \textbf{catch} SignatureExpired:
+    \State \hspace{1em} \Return Error(``Token expired'')
+    \State \textbf{catch} BadSignature:
+    \State \hspace{1em} \Return Error(``Invalid token'')
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm implements secure password reset using cryptographic token generation via the \texttt{itsdangerous} library. The token encodes the user's email address with a cryptographic signature and timestamp. During validation, the signature is verified to prevent tampering, and the timestamp is checked against a 1-hour expiry window. This approach eliminates the need to store reset tokens in the database while maintaining security against token forgery and replay attacks.
+
+\subsection{Algorithm 7: PDF Report Generation}
+
+\textbf{Input:} Feedback summary data $FSD$ \\
+\textbf{Output:} Formatted PDF document
+
+\begin{algorithm}[H]
+\caption{PDF Feedback Report Generation}
+\begin{algorithmic}[1]
+
+\State \textbf{Input:} Feedback summary data $FSD$
+\State \textbf{Output:} PDF binary stream
+
+\Function{GeneratePDF}{$feedback\_data$}
+    \State $buffer \gets$ BytesIO()
+    \State $doc \gets$ SimpleDocTemplate($buffer$, pagesize=A4)
+    \State $elements \gets$ empty list
+    
+    \State \Comment{Add title and header}
+    \State append($elements$, Paragraph(``TechAware Feedback Report'', title\_style))
+    \State append($elements$, Spacer(1, 12))
+    
+    \State \Comment{Add statistics summary}
+    \State $stats \gets$ [
+    \State \hspace{1em} [``Understood'', $feedback\_data$[``understood'']],
+    \State \hspace{1em} [``Not Understood'', $feedback\_data$[``not\_understood'']],
+    \State \hspace{1em} [``Neutral'', $feedback\_data$[``neutral'']]
+    \State ]
+    \State $table \gets$ Table($stats$)
+    \State ApplyTableStyle($table$, colors, borders)
+    \State append($elements$, $table$)
+    
+    \State \Comment{Add individual feedback entries}
+    \For{each $fb$ in $feedback\_data$[``feedback\_list'']}
+        \State append($elements$, FormatFeedbackEntry($fb$))
+    \EndFor
+    
+    \State $doc$.build($elements$)
+    \State $buffer$.seek(0)
+    \State \Return $buffer$ \Comment{Return as downloadable file}
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm generates formatted PDF reports using the ReportLab library. The report includes a title header, statistics summary table with sentiment distribution, and individual feedback entries with student details, feedback text, sentiment classification, polarity scores, and AI suggestions. The document is created in memory using a BytesIO buffer and returned as a downloadable file attachment, enabling teachers to export and share feedback reports offline.
+
+\subsection{Algorithm 8: Performance Monitoring and Alert System}
+
+\textbf{Input:} Teacher performance data $TPD$, threshold $\theta = 50\%$ \\
+\textbf{Output:} Alert notification to Batch Advisor (if triggered)
+
+\begin{algorithm}[H]
+\caption{Weekly Performance Monitor and Alert}
+\begin{algorithmic}[1]
+
+\State \textbf{Input:} All teachers $T$, threshold $\theta = 50$
+\State \textbf{Output:} Alert emails to Batch Advisors
+
+\Function{WeeklyPerformanceCheck}{}
+    \For{each $teacher$ in $T$}
+        \State $current \gets$ GetWeeklyScore($teacher$.id, CURRENT\_WEEK)
+        \State $previous \gets$ GetWeeklyScore($teacher$.id, PREVIOUS\_WEEK)
+        
+        \If{$current < \theta$ \textbf{AND} $previous < \theta$}
+            \State $advisor \gets$ GetBatchAdvisor($teacher$.department)
+            \State $body \gets$ ``ALERT: '' + $teacher$.name
+            \State $body \gets body$ + `` scored below 50\% for 2 consecutive weeks''
+            \State $body \gets body$ + `` Current: '' + $current$ + ``\%, Previous: '' + $previous$ + ``\%''
+            \State SendEmail($advisor$.email, ``Performance Alert'', $body$)
+        \EndIf
+    \EndFor
+\EndFunction
+
+\Function{GetWeeklyScore}{$teacher\_id, week$}
+    \State $feedbacks \gets$ Query Feedback WHERE teacher\_id AND week
+    \State $avg\_rating \gets$ Average($feedbacks$.rating\_overall) $\times 20$
+    \State $positive\_pct \gets$ Count(sentiment=``Understood'') / Count(all) $\times 100$
+    \State $score \gets$ ($avg\_rating + positive\_pct$) / 2
+    \State \Return $score$
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm implements the automated performance monitoring system described in the SRS. It runs on a weekly schedule (e.g., every Friday) and evaluates each teacher's performance by computing a hybrid score that combines average star ratings (normalized to percentage) with positive sentiment percentage. If a teacher's score falls below the 50\% threshold for two consecutive weeks, the system automatically sends an alert email to the assigned Batch Advisor, enabling proactive intervention for struggling teachers.
+
+% -------------------------------------------------
+% 5.4 External APIs / SDKs (If Applicable)
+% -------------------------------------------------
+
+\section{External APIs / SDKs}
+
+The following external libraries and services are integrated into the TechAware system:
+
+\begin{table}[H]
+\centering
+\caption{External APIs and Libraries Used}
+\begin{tabularx}{\textwidth}{|p{3cm}|X|p{4cm}|}
+\hline
+\textbf{API/SDK Name} & \textbf{Purpose} & \textbf{Used In Module} \\
+\hline
+TextBlob & NLP library for sentiment analysis. Computes polarity and subjectivity scores from feedback text using lexicon-based approach. No API key required. & Feedback Collection and Sentiment Analysis Module \\
+\hline
+Gmail SMTP & Email delivery service using SMTP protocol with TLS encryption (port 587). Requires Gmail account with app password configuration for authenticated email sending. & Email Notification Module \\
+\hline
+Chart.js (CDN) & JavaScript charting library loaded from jsdelivr CDN. Used to render doughnut charts for sentiment distribution visualization on teacher and admin dashboards. & Dashboard and Analytics Module \\
+\hline
+ReportLab & Python library for programmatic PDF document generation. Creates formatted feedback reports with tables, paragraphs, and custom styling for export functionality. & Reporting Module \\
+\hline
+\end{tabularx}
+\end{table}
+
+% -------------------------------------------------
+% 5.5 User Interface Implementation
+% ------------------------------------------------
+
+\section{User Interface Implementation}
+
+This section presents a detailed explanation of all user interface screens 
+developed for the TechAware system. Each screen is discussed in terms of its purpose, 
+functionalities, navigation flow, validations, and integration with backend modules.
+
+% -------------------------------------------------
+% 5.5.1 UI Design Approach
+% -------------------------------------------------
+
+\subsection{UI Design Approach}
+
+The TechAware system follows a modern, clean UI design approach with consistent visual elements across all portals. The design uses a dark-themed dashboard layout for teacher and admin panels, and a gradient-styled interface for student-facing pages.
+
+Design principles applied include responsive layout using CSS media queries for desktop and mobile compatibility, consistent color scheme (green for positive/understood, red for negative/not understood, yellow for neutral across all components), intuitive navigation with clear call-to-action buttons, and real-time feedback through AJAX-based asynchronous updates without full page reloads.
+
+Frontend technologies used include HTML5 for semantic structure, CSS3 with custom stylesheets (\texttt{style.css}, \texttt{modern-style.css}, \texttt{enhanced-style.css}) for visual design, vanilla JavaScript with AJAX for dynamic interactions, and Chart.js for data visualization. No external CSS framework (Bootstrap) was required for the final implementation due to custom stylesheet coverage.
+
+% -------------------------------------------------
+% 5.5.2 Screen-wise Implementation
+% -------------------------------------------------
+
+\subsection{Screen-wise Implementation}
+
+Each major screen is explained with its purpose, components, user interaction flow, and backend integration.
+
+% -------------------------------------------------
+\subsubsection{Screen 1: Home and Student Login Screen}
+
+\textbf{Purpose:}  
+The home page serves as the landing page for the TechAware system, providing navigation to student login and information about the system.
+
+\textbf{Components:}
+\begin{itemize}
+    \item Banner section with university logo and system title
+    \item Image slider with gallery images (auto-animated)
+    \item Student login form with email and password fields
+    \item Navigation links to admin login and feedback form
+    \item Footer with institution name
+\end{itemize}
+
+\textbf{Functional Flow:}
+Students enter their email and password credentials. The form submits via AJAX POST request to the \texttt{/student\_login} endpoint. Upon successful authentication, students are redirected to the student dashboard.
+
+\textbf{Backend Integration:}
+The login endpoint validates credentials against the Student table in the database using bcrypt password comparison.
+
+\textbf{Validation:}
+Required field validation ensures email and password are not empty. Invalid credential attempts display error messages without page reload.
+
+% -------------------------------------------------
+
+\subsubsection{Screen 2: Teacher Dashboard Screen}
+
+\textbf{Purpose:}  
+The teacher dashboard provides comprehensive feedback analytics and AI-generated teaching suggestions.
+
+\textbf{Components:}
+\begin{itemize}
+    \item Header with system title and navigation buttons
+    \item Four statistics cards (Understood, Not Understood, Neutral, Total)
+    \item Chart.js doughnut chart for sentiment distribution
+    \item AI Suggestions panel with generated recommendations
+    \item Feedback list with individual entries, sentiment badges, and delete controls
+    \item Control buttons (Export PDF, New Feedback, Refresh, Admin, Clear All)
+\end{itemize}
+
+\textbf{Functional Flow:}
+Dashboard loads initial data on page render. Auto-refresh fetches updated data from \texttt{/get\_feedback\_summary} every 5 seconds. Teachers can export PDF reports, delete individual feedback entries, or clear all feedback data.
+
+\textbf{Backend Integration:}
+The dashboard retrieves data from the feedback summary API endpoint. Chart.js renders the doughnut chart using the sentiment distribution data. PDF export triggers the \texttt{/export\_pdf} endpoint.
+
+\textbf{Security Considerations:}
+Dashboard access requires prior authentication through the admin/teacher login page.
+
+% -------------------------------------------------
+
+\subsubsection{Screen 3: Student Feedback Form}
+
+\textbf{Purpose:}
+The feedback form enables students to submit structured and textual feedback for attended lectures.
+
+\textbf{Components:}
+\begin{itemize}
+    \item Course and teacher selection fields (auto-populated)
+    \item Lecture type selection (Theory/Practical/Seminar)
+    \item Five-star rating inputs for clarity, punctuality, material quality, communication, overall
+    \item Positive aspects checkboxes (Clarity, Engagement, Examples, Pace)
+    \item Text feedback textarea (minimum 10 characters)
+    \item Submit button with loading indicator
+    \item Result display area showing sentiment emoji, polarity, and email status
+\end{itemize}
+
+\textbf{Functional Flow:}
+Students select the course and teacher from dynamically populated dropdowns, choose the lecture type, provide star ratings by clicking on interactive star inputs, optionally check positive aspects, and enter text feedback. Upon clicking submit, AJAX sends the data to \texttt{/submit\_feedback}. The response displays the sentiment emoji, polarity score, and email delivery status without page reload.
+
+\textbf{Backend Integration:}
+The submit endpoint processes feedback through TextBlob for sentiment analysis, generates AI suggestions via keyword matching, stores the complete record in the database, and sends an email notification to the configured teacher email via Gmail SMTP.
+
+\textbf{Validation:}
+Required field validation ensures all ratings are selected and feedback text meets the minimum 10-character requirement. Client-side validation prevents empty submissions.
+
+
+% -------------------------------------------------
+
+\subsubsection{Screen 4: Admin Management Panel}
+
+\textbf{Purpose:}
+The admin management panel provides comprehensive CRUD operations for all system entities through a unified tabbed interface.
+
+\textbf{Components:}
+\begin{itemize}
+    \item Tab navigation for entity types (Users, Departments, Batches, Sections, Courses, Teachers, Students, Subjects, Assignments, Timetable)
+    \item Data tables with search, filter, and sort capabilities
+    \item Add/Edit modal dialogs with form validation
+    \item Delete confirmation dialogs
+    \item SMTP configuration panel for email settings
+    \item Bulk action controls
+\end{itemize}
+
+\textbf{Functional Flow:}
+The admin selects an entity type tab. The system loads corresponding data from the API endpoint. The admin can create new entries through modal forms, edit existing entries inline, or delete entries with confirmation. All operations are performed via AJAX without page reload, and success/error toast notifications provide immediate feedback.
+
+\textbf{Backend Integration:}
+Each entity type maps to dedicated API endpoints (\texttt{/api/departments}, \texttt{/api/batches}, etc.) supporting GET, POST, PUT, and DELETE operations. The admin panel JavaScript (\texttt{admin\_manage.js}) handles all AJAX communication and DOM manipulation.
+
+\textbf{Validation:}
+Input validation includes required field checks, unique constraint verification (e.g., duplicate department codes, duplicate email addresses), and referential integrity validation (e.g., batch must belong to an existing department).
+
+
+% -------------------------------------------------
+
+\subsubsection{Screen 5: Student Dashboard}
+
+\textbf{Purpose:}
+The student dashboard provides students with an overview of their registered courses, teachers, feedback history, and submission statistics.
+
+\textbf{Components:}
+\begin{itemize}
+    \item Statistics cards (Total Courses, Total Teachers, Feedbacks Submitted, Average Rating)
+    \item Registered courses list with course codes and names
+    \item Teacher information cards
+    \item Feedback history table with sentiment badges and timestamps
+    \item Quick action buttons (Submit Feedback, View History, Change Password)
+\end{itemize}
+
+\textbf{Functional Flow:}
+On page load, the dashboard fetches student-specific data from \texttt{/api/student/dashboard/data}. Statistics are calculated from the student's feedback history. The sentiment distribution is displayed alongside average rating scores. Students can navigate to the feedback form or view detailed feedback history.
+
+\textbf{Backend Integration:}
+The student dashboard API aggregates data from StudentCourse, Feedback, and Teacher tables, computing statistics including total feedbacks, average ratings, and sentiment distribution for the authenticated student.
+
+
+% -------------------------------------------------
+
+\subsubsection{Screen 6: Password Management Screens}
+
+\textbf{Purpose:}
+The password management screens enable secure credential management through forgot password, reset password, and change password workflows.
+
+\textbf{Components:}
+\begin{itemize}
+    \item Forgot Password form with email input
+    \item Reset Password form with token validation, new password, and confirm password fields
+    \item Change Password form with current password, new password, and confirm password fields
+    \item Password strength indicators and validation messages
+\end{itemize}
+
+\textbf{Functional Flow:}
+For forgot password, users enter their email. The system generates a time-limited token using \texttt{itsdangerous.URLSafeTimedSerializer} and sends a reset link via SMTP. The reset link validates the token (1-hour expiry) and allows password change. For authenticated users, the change password screen validates the current password before allowing updates.
+
+\textbf{Backend Integration:}
+Password reset tokens are generated and validated using cryptographic serialization. New passwords are hashed using bcrypt before database storage. The system follows security best practices by not revealing whether an email exists during the forgot password flow.
+
+
+% -------------------------------------------------
+% 5.5.3 Navigation Flow Diagram
+% -------------------------------------------------
+
+\subsection{Navigation Flow Diagram}
+
+The navigation flow diagram illustrates how all screens in the TechAware system are interconnected and how users navigate between different functional areas based on their roles.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.9\textwidth}{!}{%
+\begin{tikzpicture}[node distance=1.5cm and 2cm, every node/.style={font=\small, text width=2.8cm, align=center}]
+    \tikzstyle{screen}=[draw, rectangle, minimum width=3.4cm, minimum height=0.9cm, align=center, text width=2.8cm]
+    \tikzstyle{cond}=[draw, diamond, aspect=2, minimum width=2.0cm, align=center, text width=2.2cm]
+    \node[screen] (home) {Home};
+    \node[screen, right=of home] (student) {Student Login};
+    \node[cond, right=of student] (auth) {Authenticated?};
+    \node[screen, above=of auth] (dash_t) {Teacher Dashboard};
+    \node[screen, below=of auth] (dash_s) {Student Dashboard};
+    \node[screen, right=of auth] (manage) {Admin Panel};
+    \draw[->] (home) -- (student);
+    \draw[->] (student) -- (auth);
+    \draw[->] (auth) -- node[midway, left, font=\footnotesize]{yes} (dash_t);
+    \draw[->] (auth) -- node[midway, right, font=\footnotesize]{no} (dash_s);
+    \draw[->] (dash_t) -- (manage);
+\end{tikzpicture}%
+}
+\caption{Application Navigation Flow Diagram}
+\label{fig:navflow}
+\end{figure}
+
+The navigation follows a role-based routing pattern. From the home page, students access the student login which leads to the student dashboard, feedback form, and feedback history. Teachers and administrators access the admin login, which redirects to either the teacher dashboard or admin management panel based on role. All authenticated users can access the change password screen. The forgot password flow is accessible from the login page without authentication.
+
+
+% -------------------------------------------------
+% 5.5.4 Responsiveness and Performance
+% -------------------------------------------------
+
+\subsection{Responsiveness and Performance}
+
+The TechAware system implements responsive design through CSS media queries that adapt the layout for desktop (1920px), tablet (768px), and mobile (320px) screen widths. The dashboard layout transitions from a multi-column grid on desktop to a single-column stack on mobile devices, ensuring readability and usability across all device types.
+
+Performance optimization strategies include AJAX-based asynchronous data loading that prevents full page reloads during feedback submission and dashboard updates. Chart.js is loaded from CDN to leverage browser caching and reduce server load. The auto-refresh mechanism uses a 5-second polling interval balanced between data freshness and server resource consumption. JSON-based API responses minimize data transfer overhead compared to full HTML page responses.
+
+
+% -------------------------------------------------
+% 5.3 Additional Algorithms
+% -------------------------------------------------
+
+\subsection{Algorithm 3: SMTP Email Notification Dispatch}
+
+\textbf{Input:} Recipient email $E$, subject $Sub$, feedback details $FD$ \\
+\textbf{Output:} Email delivery status (Success/Failure)
+
+\begin{algorithm}[H]
+\caption{SMTP Email Notification Dispatch}
+\begin{algorithmic}[1]
+
+\State \textbf{Input:} Recipient email $E$, subject $Sub$, feedback data $FD$
+\State \textbf{Output:} Delivery status
+
+\Function{SendEmailNotification}{$email, subject, feedback\_data$}
+    \State $msg \gets$ CreateMIMEMultipart()
+    \State $msg.From \gets$ SENDER\_EMAIL
+    \State $msg.To \gets email$
+    \State $msg.Subject \gets subject$
+    \State $body \gets$ FormatFeedbackBody($feedback\_data$)
+    \State $msg$.attach(MIMEText($body$, ``plain''))
+    
+    \State \textbf{try:}
+    \State \hspace{1em} $server \gets$ SMTP(``smtp.gmail.com'', 587)
+    \State \hspace{1em} $server$.starttls() \Comment{Enable TLS encryption}
+    \State \hspace{1em} $server$.login(SENDER\_EMAIL, APP\_PASSWORD)
+    \State \hspace{1em} $server$.sendmail(SENDER\_EMAIL, $email$, $msg$)
+    \State \hspace{1em} $server$.quit()
+    \State \hspace{1em} \Return ``Success''
+    \State \textbf{catch} Exception:
+    \State \hspace{1em} Log error message
+    \State \hspace{1em} \Return ``Failure''
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm handles automated email dispatch after each feedback submission. It constructs a MIME-formatted email containing the student's feedback text, sentiment classification, polarity score, and AI-generated suggestions. The SMTP connection uses TLS encryption on port 587 for secure transmission. Error handling ensures that email failures do not disrupt the feedback storage process — the feedback is saved regardless of email delivery status.
+
+
+\subsection{Algorithm 4: Role-Based Access Control (RBAC)}
+
+\textbf{Input:} HTTP request $R$, user session $S$, allowed roles list $AR$ \\
+\textbf{Output:} Access granted or denied
+
+\begin{algorithm}[H]
+\caption{Role-Based Access Control}
+\begin{algorithmic}[1]
+
+\State \textbf{Input:} Request $R$, Session $S$, Allowed Roles $AR$
+\State \textbf{Output:} Access decision
+
+\Function{CheckAccess}{$request, session, allowed\_roles$}
+    \If{``user\_id'' $\notin$ $session$ \textbf{OR} ``role'' $\notin$ $session$}
+        \State \Return Redirect(``/admin'') \Comment{Unauthenticated}
+    \EndIf
+    
+    \State $user\_role \gets session$[``role'']
+    
+    \If{$user\_role \notin allowed\_roles$}
+        \State \Return JSON(\{``success'': False, ``message'': ``Unauthorized''\}), 403
+    \EndIf
+    
+    \State \Return ExecuteRoute($request$) \Comment{Access granted}
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+The RBAC algorithm is implemented as a Python decorator function that wraps protected route handlers. Before executing any protected endpoint, the decorator verifies that a valid session exists (user is authenticated) and that the user's role is included in the list of allowed roles for that endpoint. This ensures that students cannot access admin endpoints, and teachers cannot perform administrative CRUD operations, enforcing the principle of least privilege.
+
+
+\subsection{Algorithm 5: Password Hashing and Verification}
+
+\textbf{Input:} Plain text password $P$ \\
+\textbf{Output:} Hashed password $H$ for storage, or Boolean verification result
+
+\begin{algorithm}[H]
+\caption{Password Hashing and Verification}
+\begin{algorithmic}[1]
+
+\Function{HashPassword}{$plain\_password$}
+    \State $bytes \gets$ Encode($plain\_password$, ``utf-8'')
+    \State $salt \gets$ bcrypt.gensalt()
+    \State $hash \gets$ bcrypt.hashpw($bytes$, $salt$)
+    \State \Return Decode($hash$, ``utf-8'')
+\EndFunction
+
+% removed redundant vertical spacing
+
+\Function{VerifyPassword}{$plain\_password, stored\_hash$}
+    \If{$stored\_hash$ starts with ``\$2''}
+        \State $bytes \gets$ Encode($plain\_password$, ``utf-8'')
+        \State $hash\_bytes \gets$ Encode($stored\_hash$, ``utf-8'')
+        \State \Return bcrypt.checkpw($bytes$, $hash\_bytes$)
+    \Else
+        \State \Return werkzeug.check\_password\_hash($stored\_hash$, $plain\_password$)
+    \EndIf
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm implements secure password management using bcrypt cryptographic hashing. During registration, passwords are hashed with a randomly generated salt before database storage, ensuring that even identical passwords produce different hash values. During login, the verification function supports both bcrypt hashes (prefixed with \texttt{\$2}) and legacy Werkzeug hashes for backward compatibility. This dual-support approach enables gradual migration of existing password hashes without requiring users to reset their credentials.
+
+
+\subsection{Algorithm 6: Password Reset Token Generation and Validation}
+
+\textbf{Input:} User email $E$ \\
+\textbf{Output:} Secure time-limited token $T$
+
+\begin{algorithm}[H]
+\caption{Token-Based Password Reset}
+\begin{algorithmic}[1]
+
+\Function{GenerateResetToken}{$email$}
+    \State $serializer \gets$ URLSafeTimedSerializer(SECRET\_KEY)
+    \State $token \gets serializer$.dumps($email$, salt=``password-reset-salt'')
+    \State $reset\_url \gets$ BuildURL(``/reset-password/'', $token$)
+    \State SendEmail($email$, $reset\_url$)
+    \State \Return $token$
+\EndFunction
+
+% removed redundant vertical spacing
+
+\Function{ValidateResetToken}{$token$}
+    \State $serializer \gets$ URLSafeTimedSerializer(SECRET\_KEY)
+    \State \textbf{try:}
+    \State \hspace{1em} $email \gets serializer$.loads($token$, salt=``password-reset-salt'', max\_age=3600)
+    \State \hspace{1em} \Return $email$ \Comment{Token valid, return email}
+    \State \textbf{catch} SignatureExpired:
+    \State \hspace{1em} \Return Error(``Token expired'')
+    \State \textbf{catch} BadSignature:
+    \State \hspace{1em} \Return Error(``Invalid token'')
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm implements secure password reset using cryptographic token generation via the \texttt{itsdangerous} library. The token encodes the user's email address with a cryptographic signature and timestamp. During validation, the signature is verified to prevent tampering, and the timestamp is checked against a 1-hour expiry window. This approach eliminates the need to store reset tokens in the database while maintaining security against token forgery and replay attacks.
+
+
+\subsection{Algorithm 7: PDF Report Generation}
+
+\textbf{Input:} Feedback summary data $FSD$ \\
+\textbf{Output:} Formatted PDF document
+
+\begin{algorithm}[H]
+\caption{PDF Feedback Report Generation}
+\begin{algorithmic}[1]
+
+\State \textbf{Input:} Feedback summary data $FSD$
+\State \textbf{Output:} PDF binary stream
+
+\Function{GeneratePDF}{$feedback\_data$}
+    \State $buffer \gets$ BytesIO()
+    \State $doc \gets$ SimpleDocTemplate($buffer$, pagesize=A4)
+    \State $elements \gets$ empty list
+    
+    \State \Comment{Add title and header}
+    \State append($elements$, Paragraph(``TechAware Feedback Report'', title\_style))
+    \State append($elements$, Spacer(1, 12))
+    
+    \State \Comment{Add statistics summary}
+    \State $stats \gets$ [
+    \State \hspace{1em} [``Understood'', $feedback\_data$[``understood'']],
+    \State \hspace{1em} [``Not Understood'', $feedback\_data$[``not\_understood'']],
+    \State \hspace{1em} [``Neutral'', $feedback\_data$[``neutral'']]
+    \State ]
+    \State $table \gets$ Table($stats$)
+    \State ApplyTableStyle($table$, colors, borders)
+    \State append($elements$, $table$)
+    
+    \State \Comment{Add individual feedback entries}
+    \For{each $fb$ in $feedback\_data$[``feedback\_list'']}
+        \State append($elements$, FormatFeedbackEntry($fb$))
+    \EndFor
+    
+    \State $doc$.build($elements$)
+    \State $buffer$.seek(0)
+    \State \Return $buffer$ \Comment{Return as downloadable file}
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm generates formatted PDF reports using the ReportLab library. The report includes a title header, statistics summary table with sentiment distribution, and individual feedback entries with student details, feedback text, sentiment classification, polarity scores, and AI suggestions. The document is created in memory using a BytesIO buffer and returned as a downloadable file attachment, enabling teachers to export and share feedback reports offline.
+
+
+\subsection{Algorithm 8: Performance Monitoring and Alert System}
+
+\textbf{Input:} Teacher performance data $TPD$, threshold $\theta = 50\%$ \\
+\textbf{Output:} Alert notification to Batch Advisor (if triggered)
+
+\begin{algorithm}[H]
+\caption{Weekly Performance Monitor and Alert}
+\begin{algorithmic}[1]
+
+\State \textbf{Input:} All teachers $T$, threshold $\theta = 50$
+\State \textbf{Output:} Alert emails to Batch Advisors
+
+\Function{WeeklyPerformanceCheck}{}
+    \For{each $teacher$ in $T$}
+        \State $current \gets$ GetWeeklyScore($teacher$.id, CURRENT\_WEEK)
+        \State $previous \gets$ GetWeeklyScore($teacher$.id, PREVIOUS\_WEEK)
+        
+        \If{$current < \theta$ \textbf{AND} $previous < \theta$}
+            \State $advisor \gets$ GetBatchAdvisor($teacher$.department)
+            \State $body \gets$ ``ALERT: '' + $teacher$.name
+            \State $body \gets body$ + `` scored below 50\% for 2 consecutive weeks''
+            \State $body \gets body$ + `` Current: '' + $current$ + ``\%, Previous: '' + $previous$ + ``\%''
+            \State SendEmail($advisor$.email, ``Performance Alert'', $body$)
+        \EndIf
+    \EndFor
+\EndFunction
+
+% removed redundant vertical spacing
+
+\Function{GetWeeklyScore}{$teacher\_id, week$}
+    \State $feedbacks \gets$ Query Feedback WHERE teacher\_id AND week
+    \State $avg\_rating \gets$ Average($feedbacks$.rating\_overall) $\times 20$
+    \State $positive\_pct \gets$ Count(sentiment=``Understood'') / Count(all) $\times 100$
+    \State $score \gets$ ($avg\_rating + positive\_pct$) / 2
+    \State \Return $score$
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Explanation:}
+This algorithm implements the automated performance monitoring system described in the SRS. It runs on a weekly schedule (e.g., every Friday) and evaluates each teacher's performance by computing a hybrid score that combines average star ratings (normalized to percentage) with positive sentiment percentage. If a teacher's score falls below the 50\% threshold for two consecutive weeks, the system automatically sends an alert email to the assigned Batch Advisor, enabling proactive intervention for struggling teachers.
+
+
+% -------------------------------------------------
+% 5.6 Deployment
+% -------------------------------------------------
+
+\section{Deployment}
+
+The TechAware system is deployed as a local web application suitable for institutional use within a university network.
+
+\begin{table}[H]
+\centering
+\caption{Deployment Details}
+\begin{tabularx}{\textwidth}{|p{3cm}|p{3cm}|X|}
+\hline
+\textbf{Component} & \textbf{Platform} & \textbf{Details} \\
+\hline
+Backend Server & Local Flask Development Server & Flask built-in server running on \texttt{http://127.0.0.1:5000} with debug mode for development \\
+\hline
+Database & SQLite (Local File) & Database stored at \texttt{instance/techaware.db} with automatic creation on first run \\
+\hline
+Email Service & Gmail SMTP & Configured with Gmail app password for automated notifications on port 587 (TLS) \\
+\hline
+Frontend Assets & CDN + Local & Chart.js loaded from jsdelivr CDN; custom CSS and JavaScript served locally \\
+\hline
+\end{tabularx}
+\end{table}
+
+Deployment steps include installing Python dependencies via \texttt{pip install -r requirements.txt}, configuring SMTP credentials in \texttt{app.py}, and running the application with \texttt{python app.py}. The system automatically initializes the database schema, creates default department records, and sets up initial batch and section data on first execution.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Chapter Summary}
+
+This chapter detailed the practical implementation of the TechAware AI-Based Feedback System, covering the development environment setup, core module implementation across four system modules (Authentication, Academic Management, Feedback Processing, and Dashboard Analytics), eight algorithm implementations including sentiment analysis, AI suggestion generation, SMTP email dispatch, role-based access control, password hashing, token-based password reset, PDF report generation, and performance monitoring. The chapter also documented the user interface implementation for six major screens, external API integrations, navigation flow, responsiveness considerations, and deployment configuration. The implementation follows the architectural design defined in Chapter 4 and satisfies the functional requirements specified in Chapter 3.

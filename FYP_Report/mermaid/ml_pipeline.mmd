@@ -1,0 +1,40 @@
+flowchart TD
+    A["📝 Student Submits Feedback"] --> B["✅ Validate Input Fields"]
+    B --> C{"All Fields<br/>Valid?"}
+    C -->|"No"| D["❌ Display Validation<br/>Error Message"]
+    D --> A
+    C -->|"Yes"| E["🔤 Create TextBlob<br/>Object"]
+    E --> F["📊 Calculate Polarity<br/>Score (-1.0 to +1.0)"]
+    F --> G["📊 Calculate Subjectivity<br/>Score (0.0 to 1.0)"]
+    G --> H{"Polarity > 0.1?"}
+    H -->|"Yes"| I["✅ Classify: UNDERSTOOD<br/>(Positive Sentiment)"]
+    H -->|"No"| J{"Polarity < -0.1?"}
+    J -->|"Yes"| K["❌ Classify: NOT UNDERSTOOD<br/>(Negative Sentiment)"]
+    J -->|"No"| L["⚖️ Classify: NEUTRAL"]
+    I --> M["🔍 Keyword Analysis<br/>(Pattern Matching)"]
+    K --> M
+    L --> M
+    M --> N["💡 Generate AI<br/>Suggestions"]
+    N --> O["💾 Store Feedback<br/>in Database"]
+    O --> P["📧 Send Email to<br/>Teacher via SMTP"]
+    P --> Q["📊 Update Dashboard<br/>Statistics"]
+    Q --> R["📈 Display Sentiment<br/>Result to Student"]
+
+    style A fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000
+    style B fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style C fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style D fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000
+    style E fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style F fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style G fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style H fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style I fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style J fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style K fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000
+    style L fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style M fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#000
+    style N fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#000
+    style O fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style P fill:#e0e0e0,stroke:#616161,stroke-width:2px,color:#000
+    style Q fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style R fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px,color:#000

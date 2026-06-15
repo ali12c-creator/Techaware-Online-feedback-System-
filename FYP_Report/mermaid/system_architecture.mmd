@@ -1,0 +1,81 @@
+graph TB
+    subgraph PL["🖥️ Presentation Layer (Jinja2 Templates + HTML/CSS/JS)"]
+        direction LR
+        H1["Home Page<br/>home.html"]
+        H2["Student Login<br/>student_login.html"]
+        H3["Admin Login<br/>admin.html"]
+        H4["Feedback Form<br/>feedback.html"]
+        H5["Teacher Dashboard<br/>dashboard.html"]
+        H6["Student Dashboard<br/>student_dashboard.html"]
+        H7["Admin Panel<br/>admin_manage.html"]
+    end
+
+    subgraph AL["⚙️ Application Layer (Flask 2.3.3 Backend)"]
+        direction LR
+        A1["Authentication<br/>Module<br/>(auth.py)"]
+        A2["Feedback Processing<br/>Module<br/>(app.py)"]
+        A3["Sentiment Analysis<br/>Engine<br/>(TextBlob NLP)"]
+        A4["AI Suggestion<br/>Generator<br/>(Keyword Engine)"]
+        A5["Email Notification<br/>Service<br/>(Gmail SMTP)"]
+        A6["PDF Report<br/>Generator<br/>(ReportLab)"]
+        A7["Academic Management<br/>Module<br/>(database.py)"]
+    end
+
+    subgraph DL["💾 Data Layer (SQLAlchemy ORM)"]
+        direction LR
+        D1[("SQLite<br/>techaware.db")]
+        D2["Users"]
+        D3["Students"]
+        D4["Teachers"]
+        D5["Feedbacks"]
+        D6["Courses"]
+        D7["Departments"]
+        D8["Batches"]
+        D9["Sections"]
+        D10["Timetables"]
+    end
+
+    subgraph EXT["🌐 External Services"]
+        E1["Gmail SMTP<br/>Server"]
+        E2["Chart.js CDN<br/>(Visualization)"]
+    end
+
+    PL ==>|"HTTP Requests<br/>AJAX Calls"| AL
+    AL ==>|"ORM Queries<br/>CRUD Operations"| DL
+    A5 -->|"SMTP Protocol"| E1
+    PL -.->|"CDN Script"| E2
+
+    style PL fill:#e3f2fd,stroke:#1565c0,stroke-width:3px,color:#000
+    style AL fill:#fff3e0,stroke:#e65100,stroke-width:3px,color:#000
+    style DL fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px,color:#000
+    style EXT fill:#fce4ec,stroke:#c62828,stroke-width:3px,color:#000
+
+    style H1 fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style H2 fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style H3 fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style H4 fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style H5 fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style H6 fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style H7 fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+
+    style A1 fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style A2 fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style A3 fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style A4 fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style A5 fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style A6 fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style A7 fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+
+    style D1 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D2 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D3 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D4 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D5 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D6 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D7 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D8 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D9 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style D10 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+
+    style E1 fill:#f8bbd0,stroke:#c62828,stroke-width:2px,color:#000
+    style E2 fill:#f8bbd0,stroke:#c62828,stroke-width:2px,color:#000

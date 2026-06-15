@@ -1,0 +1,63 @@
+%===========================================================
+\subsection*{Source Code Repository}
+\addcontentsline{toc}{subsection}{Source Code Repository}
+%===========================================================
+
+The complete source code of the TechAware AI-Based Feedback System is available at the following repository:
+
+\vspace{0.5cm}
+
+\noindent
+\textbf{Repository Link:} \url{https://github.com/your-username/TechAware-Feedback-System}
+
+\vspace{0.5cm}
+
+\noindent
+\textit{Note: Replace the above link with the actual repository URL before final submission.}
+
+%===========================================================
+\subsection*{Project Structure}
+\addcontentsline{toc}{subsection}{Project Structure}
+%===========================================================
+
+The project follows a modular file organization with clear separation of concerns:
+
+\begin{verbatim}
+FYP_PROJECT/
+|-- app.py                    Main Flask application (routes, APIs)
+|-- models.py                 SQLAlchemy database models
+|-- database.py               Database initialization and migration
+|-- requirements.txt          Python dependencies
+|-- README.md                 Project documentation
+|
+|-- instance/
+|   +-- techaware.db          SQLite database file
+|
+|-- templates/
+|   |-- home.html             Landing page
+|   |-- admin.html            Admin/Teacher login
+|   |-- admin_manage.html     Admin management panel
+|   |-- dashboard.html        Teacher dashboard
+|   |-- student_login.html    Student login
+|   |-- student_dashboard.html Student dashboard
+|   +-- feedback.html         Feedback submission form
+|
++-- static/
+    |-- style.css             Base stylesheet
+    |-- modern-style.css      Modern UI styles
+    |-- enhanced-style.css    Enhanced styles
+    |-- admin_manage.js       Admin panel JavaScript
+    +-- enhanced-utils.js     Utility JavaScript functions
+\end{verbatim}
+
+%===========================================================
+\subsection*{Key Files Description}
+\addcontentsline{toc}{subsection}{Key Files Description}
+%===========================================================
+
+\begin{itemize}
+    \item \textbf{app.py}: Contains all Flask routes, API endpoints, authentication logic, feedback processing with TextBlob sentiment analysis, email notification system, and PDF report generation.
+    \item \textbf{models.py}: Defines 12 SQLAlchemy database model classes including User, Department, Batch, Section, Student, Course, Teacher, BatchSubject, CourseTeacher, Feedback, Attendance, and Timetable.
+    \item \textbf{database.py}: Handles database creation, schema migration, and default data initialization for development environments.
+    \item \textbf{requirements.txt}: Lists Python package dependencies (Flask 2.3.3, Flask-SQLAlchemy 3.0.5, TextBlob 0.17.1, ReportLab 4.0.4, Werkzeug 2.3.7, bcrypt 4.0.1).
+\end{itemize}

@@ -1,0 +1,161 @@
+% ==============================
+% Chapter 2 – Problem Definition
+% ==============================
+
+\chapter{Problem Definition}
+% --------------------------------
+% 2.1 Problem Statement
+% --------------------------------
+
+\section{Problem Statement}
+
+Educational institutions currently lack efficient, automated mechanisms for collecting and analyzing student feedback on teaching quality. Traditional feedback methods such as paper-based forms, end-of-semester surveys, and generic online questionnaires suffer from low response rates, delayed processing, and an inability to provide real-time analytical insights. Teachers receive feedback too late to make timely instructional adjustments, and the unstructured nature of text-based responses makes manual review impractical. Administrators lack a centralized platform to monitor teaching performance across departments and courses. The absence of sentiment analysis and AI-powered suggestion generation means that valuable patterns and actionable trends within student feedback remain undetected, resulting in missed opportunities for continuous improvement in teaching quality.
+
+
+
+% --------------------------------
+% 2.2 Proposed Solution Overview
+% --------------------------------
+
+\section{Proposed Solution Overview}
+
+The TechAware AI-Based Feedback System is a web-based platform that automates the complete student feedback lifecycle — from collection to analysis to reporting. The system collects structured ratings and free-text feedback from students after each lecture session, performs real-time sentiment analysis using TextBlob NLP, classifies feedback as Positive (Understood), Negative (Not Understood), or Neutral, and generates AI-powered teaching improvement suggestions based on keyword analysis. The system integrates academic management features including department, batch, section, course, timetable, and attendance management to ensure attendance-verified feedback submission. Four distinct user portals — Student, Teacher, Administrator, and Batch Advisor — provide role-specific dashboards with relevant analytics, automated email notifications, and PDF report generation capabilities.
+
+
+
+% --------------------------------
+% 2.3 Objectives of the Proposed System
+% --------------------------------
+
+\section{Objectives of the Proposed System}
+
+The following measurable objectives define the intended outcomes of the TechAware system. Each objective aligns directly with challenges identified in the Problem Statement.
+
+\vspace{0.3cm}
+
+\textbf{Business Objectives (BO):}
+
+\begin{itemize}
+    \item BO-1: Develop a web-based feedback collection system that enables students to submit structured and textual feedback after each lecture session.
+    \item BO-2: Implement real-time NLP-based sentiment analysis to automatically classify student feedback into Positive, Negative, or Neutral categories.
+    \item BO-3: Provide AI-powered teaching improvement suggestions to educators based on feedback content analysis.
+    \item BO-4: Ensure role-based access control with dedicated portals for Students, Teachers, Administrators, and Batch Advisors.
+    \item BO-5: Automate the feedback notification workflow through SMTP-based email alerts and dashboard-based performance monitoring.
+\end{itemize}
+
+
+
+% --------------------------------
+% 2.4 Scope of the System
+% --------------------------------
+
+\section{Scope of the System}
+
+The TechAware system is a web-based application accessible through modern web browsers on desktop and mobile devices. The system targets university-level educational institutions and supports four user roles: Students, Teachers, Administrators, and Batch Advisors. Core functionalities include feedback collection with multi-dimensional star ratings, NLP-based sentiment analysis, AI suggestion generation, analytics dashboards with Chart.js visualizations, PDF report export, SMTP email notifications, and comprehensive academic management (departments, batches, sections, courses, timetables, attendance). The system does not include a native mobile application, video-based feedback, parent portal access, or multi-language NLP support. Deployment is scoped for single-institution use with SQLite database.
+
+
+
+% --------------------------------
+% 2.5 System Architecture and Modules
+% --------------------------------
+
+\section{System Architecture and Modules}
+
+The TechAware system follows a three-tier layered architecture consisting of a Presentation Layer (HTML/CSS/JavaScript frontend templates), an Application Layer (Python Flask backend with business logic and NLP processing), and a Data Layer (SQLAlchemy ORM with SQLite database). The system is designed using modular principles with clearly defined module boundaries, ensuring loose coupling between components and enabling independent development, testing, and maintenance of each module.
+
+
+
+% --------------------------------
+% 2.5.1 Module Descriptions
+% --------------------------------
+
+\subsection{Module 1: User Management and Authentication}
+
+This module handles user registration, authentication, authorization, and profile management across all four user roles. Administrators can create user accounts with assigned roles. Teachers and students authenticate using email and password credentials. Password security is implemented using bcrypt hashing through the Werkzeug library. Session management ensures that authenticated users can access only role-appropriate system features.
+
+\textbf{Functional Requirements:}
+
+\begin{itemize}
+    \item FE-1: The system shall allow administrators to create user accounts with assigned roles (Student, Teacher, Admin, Batch Advisor).
+    \item FE-2: The system shall authenticate users using email and hashed password credentials before granting access to role-specific portals.
+\end{itemize}
+
+
+
+\subsection{Module 2: Academic Management}
+
+This module manages the organizational hierarchy of the institution including departments, batches, sections, courses, and teacher-course assignments. Administrators can perform full CRUD operations on all academic entities. The module supports batch-subject assignment and teacher-section-course mapping to establish the relationships needed for timetable and feedback management.
+
+\textbf{Functional Requirements:}
+
+\begin{itemize}
+    \item FE-1: The system shall enable administrators to create, read, update, and delete departments, batches, sections, and courses.
+    \item FE-2: The system shall support assignment of subjects to batches and teachers to specific course-section combinations.
+    \item FE-3: The system shall maintain timetable records linking courses, teachers, sections, and time slots with conflict detection.
+\end{itemize}
+
+
+
+\subsection{Module 3: Feedback Collection and Sentiment Analysis}
+
+This module implements the core functionality of the system. Students submit feedback through a structured form including star ratings for clarity, punctuality, material quality, communication, and overall satisfaction, along with free-text comments. The TextBlob NLP library analyzes the textual feedback to calculate polarity and subjectivity scores, classifying each response as Understood (positive), Not Understood (negative), or Neutral. AI-powered suggestions are generated using keyword-based analysis of feedback content.
+
+\textbf{Functional Requirements:}
+
+\begin{itemize}
+    \item FE-1: The system shall collect student feedback through a structured form with multi-dimensional ratings and free-text input.
+    \item FE-2: The system shall perform real-time sentiment analysis using TextBlob and classify feedback based on polarity thresholds.
+    \item FE-3: The system shall generate AI-powered teaching improvement suggestions based on keyword analysis of feedback text.
+\end{itemize}
+
+
+
+\subsection{Module 4: Administration and Analytics Dashboard}
+
+This module provides comprehensive administrative control and analytics capabilities. The admin dashboard displays system-wide statistics, teacher performance comparisons, feedback sentiment distributions, and custom report generation. Teachers access a dedicated dashboard showing their feedback analytics, AI suggestions, and performance metrics. Batch advisors receive automated alerts when teacher performance drops below defined thresholds.
+
+\textbf{Functional Requirements:}
+
+\begin{itemize}
+    \item FE-1: The system shall provide administrators with a dashboard displaying system-wide statistics and teacher performance analytics.
+    \item FE-2: The system shall generate visual analytics using Chart.js including doughnut charts for sentiment distribution.
+\end{itemize}
+
+
+
+\subsection{Module 5: Email Notification and Report Generation}
+
+This module handles automated communication through the SMTP email system and PDF report generation through ReportLab. After each feedback submission, the system sends an email notification to the relevant teacher containing feedback details, sentiment analysis results, and AI suggestions. The system also supports PDF export of feedback reports with formatted tables and statistics. Batch advisors receive automated email alerts for low-performing teachers.
+
+\textbf{Functional Requirements:}
+
+\begin{itemize}
+    \item FE-1: The system shall send automated email notifications to teachers after each feedback submission using SMTP.
+    \item FE-2: The system shall generate downloadable PDF reports containing feedback statistics and analysis summaries.
+\end{itemize}
+
+
+% --------------------------------
+% 2.7 Assumptions and Dependencies
+% --------------------------------
+
+\section{Assumptions and Dependencies}
+
+The following assumptions and dependencies were identified during system design:
+
+\begin{itemize}
+    \item The system assumes users have stable internet connectivity for accessing the web application and receiving email notifications.
+    \item The system depends on Gmail SMTP service availability for email delivery; institutional SMTP servers may be substituted.
+    \item The system requires Python 3.8 or higher with Flask 2.3.3 and associated libraries installed on the deployment server.
+    \item Students are assumed to possess basic web browsing skills to access the feedback form and submit responses.
+    \item Teachers are assumed to have active email accounts configured in the system for receiving notifications.
+    \item The TextBlob library requires the NLTK corpora to be downloaded for sentiment analysis functionality.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Chapter Summary}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This chapter defined the core problem addressed by the TechAware AI-Based Feedback System — the lack of efficient, automated, and analytically intelligent student feedback mechanisms in educational institutions. The proposed solution was outlined as a web-based platform integrating NLP-based sentiment analysis, AI-powered suggestions, and comprehensive academic management. Clear business objectives were established to ensure alignment with identified challenges. The system scope, three-tier architectural overview, and five major modules were presented to define structural boundaries and functional responsibilities. Key assumptions and dependencies were also documented to clarify operational constraints.
+
+This chapter provides the problem foundation and sets the direction for the detailed requirement analysis presented in the next chapter.

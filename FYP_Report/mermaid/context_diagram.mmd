@@ -1,0 +1,34 @@
+graph TD
+    S["👤 Student"]
+    T["👨‍🏫 Teacher"]
+    A["🔧 Administrator"]
+    BA["📋 Batch Advisor"]
+    SMTP["📧 Gmail SMTP Server"]
+    CDN["📊 Chart.js CDN"]
+
+    SYS["TechAware<br/>AI-Based Student<br/>Feedback System"]
+
+    S -->|"Feedback Data<br/>(Ratings + Text Comments)"| SYS
+    SYS -->|"Sentiment Result<br/>AI Suggestions"| S
+
+    T -->|"Attendance Data<br/>Login Credentials"| SYS
+    SYS -->|"Dashboard Analytics<br/>PDF Reports<br/>Email Notifications"| T
+
+    A -->|"CRUD Operations<br/>System Configuration"| SYS
+    SYS -->|"System Data<br/>Confirmation Messages"| A
+
+    BA -->|"Monitoring Queries<br/>Performance Review"| SYS
+    SYS -->|"Performance Alerts<br/>Batch Statistics"| BA
+
+    SYS -->|"Email Content<br/>(Feedback Notifications)"| SMTP
+    SMTP -->|"Delivery Status"| SYS
+
+    CDN -->|"JavaScript Library<br/>(Charts & Graphs)"| SYS
+
+    style SYS fill:#fff3e0,stroke:#e65100,stroke-width:4px,color:#000
+    style S fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style T fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style A fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style BA fill:#f8bbd0,stroke:#c62828,stroke-width:2px,color:#000
+    style SMTP fill:#e0e0e0,stroke:#616161,stroke-width:2px,color:#000
+    style CDN fill:#e0e0e0,stroke:#616161,stroke-width:2px,color:#000

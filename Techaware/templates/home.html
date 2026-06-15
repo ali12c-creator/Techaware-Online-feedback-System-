@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechAware - Student Feedback Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: #0a0a14;
+    color: #ffffff;
+    overflow-x: hidden;
+}
+
+/* NAVBAR */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 10, 20, 0.8);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(102, 126, 234, 0.15);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.brand-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+}
+
+.brand-name {
+    font-size: 22px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    background: rgba(255,255,255,0.1);
+}
+
+.btn-login-nav {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white !important;
+    padding: 10px 24px !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+}
+
+.btn-login-nav:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    background: rgba(255,255,255,0.1) !important;
+}
+
+/* HERO SECTION */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 100px 40px 60px;
+}
+
+/* Animated background */
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0a0a14 0%, #1a0a2e 50%, #0a0a14 100%);
+}
+
+.hero-bg::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
+    animation: pulse 4s ease-in-out infinite;
+}
+
+.hero-bg::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(118, 75, 162, 0.15) 0%, transparent 70%);
+    animation: pulse 4s ease-in-out infinite reverse;
+}
+
+/* Background image overlay */
+.hero-image-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: url('/static/university.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.08;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(102, 126, 234, 0.15);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    color: #a78bfa;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 32px;
+    animation: fadeInDown 0.8s ease;
+}
+
+.hero-title {
+    font-size: clamp(40px, 8vw, 80px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    animation: fadeInUp 0.8s ease 0.2s both;
+}
+
+.hero-title .gradient-text {
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: clamp(16px, 2.5vw, 20px);
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    margin-bottom: 48px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: fadeInUp 0.8s ease 0.4s both;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.6s both;
+}
+
+.btn-primary-hero {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 16px 40px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary-hero:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary-hero {
+    background: rgba(255,255,255,0.08);
+    color: white;
+    padding: 16px 40px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    border: 1px solid rgba(255,255,255,0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary-hero:hover {
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-3px);
+}
+
+/* STATS BAR */
+.stats-bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-top: 80px;
+    padding-top: 48px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.8s both;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+/* FEATURES SECTION */
+.features-section {
+    padding: 100px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    color: #667eea;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+.section-subtitle {
+    color: rgba(255,255,255,0.5);
+    font-size: 16px;
+    max-width: 500px;
+    line-height: 1.7;
+    margin-bottom: 60px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.feature-card {
+    background: #1a1a2e;
+    border: 1px solid rgba(102, 126, 234, 0.15);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.feature-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.feature-desc {
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* HOW IT WORKS */
+.how-section {
+    padding: 100px 40px;
+    background: rgba(102, 126, 234, 0.03);
+    border-top: 1px solid rgba(102, 126, 234, 0.08);
+    border-bottom: 1px solid rgba(102, 126, 234, 0.08);
+}
+
+.how-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-top: 60px;
+}
+
+.step-item {
+    position: relative;
+}
+
+.step-number {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    margin: 0 auto 20px;
+}
+
+.step-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.step-desc {
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* CTA SECTION */
+.cta-section {
+    padding: 100px 40px;
+    text-align: center;
+}
+
+.cta-card {
+    max-width: 700px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 32px;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-card::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.2), transparent);
+    border-radius: 50%;
+}
+
+.cta-title {
+    font-size: clamp(24px, 4vw, 40px);
+    font-weight: 800;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.cta-subtitle {
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 40px;
+    font-size: 16px;
+    position: relative;
+}
+
+/* FOOTER */
+.footer {
+    padding: 40px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.footer-brand {
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.footer-text {
+    color: rgba(255,255,255,0.3);
+    font-size: 13px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* MOBILE */
+/* Scroll animations */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-on-scroll.animate-left {
+    transform: translateX(-40px);
+}
+
+.animate-on-scroll.animate-right {
+    transform: translateX(40px);
+}
+
+.animate-on-scroll.animate-scale {
+    transform: scale(0.9);
+    opacity: 0;
+}
+
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+}
+
+/* Stagger children */
+.stagger-children .animate-on-scroll:nth-child(1) { transition-delay: 0.1s; }
+.stagger-children .animate-on-scroll:nth-child(2) { transition-delay: 0.2s; }
+.stagger-children .animate-on-scroll:nth-child(3) { transition-delay: 0.3s; }
+.stagger-children .animate-on-scroll:nth-child(4) { transition-delay: 0.4s; }
+.stagger-children .animate-on-scroll:nth-child(5) { transition-delay: 0.5s; }
+.stagger-children .animate-on-scroll:nth-child(6) { transition-delay: 0.6s; }
+
+/* Floating animation */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Gradient text animation */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.gradient-text {
+    background: linear-gradient(
+        135deg, 
+        #667eea, 
+        #764ba2, 
+        #f093fb, 
+        #667eea
+    );
+    background-size: 300% 300%;
+    animation: gradientShift 4s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Counter animation */
+.count-up {
+    display: inline-block;
+}
+
+/* Particle dots */
+.particles {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(102, 126, 234, 0.6);
+    border-radius: 50%;
+    animation: particleFloat linear infinite;
+}
+
+@keyframes particleFloat {
+    0% { 
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+    }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { 
+        transform: translateY(-100px) translateX(100px);
+        opacity: 0;
+    }
+}
+
+/* Glow effect on cards */
+.feature-card:hover {
+    box-shadow: 
+        0 30px 60px rgba(0,0,0,0.3),
+        0 0 30px rgba(102, 126, 234, 0.1);
+}
+
+/* Navbar scroll effect */
+.navbar.scrolled {
+    background: rgba(10, 10, 20, 0.98);
+    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 12px 20px;
+    }
+
+    .hero {
+        padding: 80px 20px 40px;
+    }
+
+    .stats-bar {
+        gap: 30px;
+    }
+
+    .features-section,
+    .how-section,
+    .cta-section {
+        padding: 60px 20px;
+    }
+
+    .footer {
+        padding: 30px 20px;
+        text-align: center;
+        justify-content: center;
+    }
+}
+    </style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<nav class="navbar">
+    <a href="/" class="navbar-brand">
+        <img src="/static/logo.png" class="brand-logo" alt="TechAware">
+        <span class="brand-name">TechAware</span>
+    </a>
+    <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how" class="nav-link">How It Works</a>
+        <a href="/login" class="nav-link btn-login-nav">
+            <i class="fas fa-sign-in-alt"></i> Login
+        </a>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="hero-bg">
+        <div class="hero-image-overlay"></div>
+    </div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-sparkles"></i>
+            AI-Powered Feedback System
+        </div>
+        <h1 class="hero-title">
+            Transform Your<br>
+            <span class="gradient-text">Learning Experience</span>
+        </h1>
+        <p class="hero-subtitle">
+            Empowering COMSATS University with
+            intelligent AI-driven insights.
+            Smarter teaching. Better learning.
+            Real results.
+        </p>
+        <div class="hero-buttons">
+            <a href="/login" class="btn-primary-hero">
+                <i class="fas fa-rocket"></i>
+                Get Started
+            </a>
+            <a href="#features" class="btn-secondary-hero">
+                <i class="fas fa-play-circle"></i>
+                Learn More
+            </a>
+        </div>
+        <div class="stats-bar animate-on-scroll">
+            <div class="stat-item">
+                <div class="stat-number count-up" data-target="500">0+</div>
+                <div class="stat-text">Students</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number count-up" data-target="50">0+</div>
+                <div class="stat-text">Teachers</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number count-up" data-target="98">0+</div>
+                <div class="stat-text">Satisfaction</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">AI</div>
+                <div class="stat-text">Powered</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section" id="features">
+    <div class="section-badge animate-on-scroll animate-left">✨ Features</div>
+    <h2 class="section-title animate-on-scroll">Everything You Need</h2>
+    <p class="section-subtitle animate-on-scroll">
+        A complete feedback ecosystem designed for modern universities.
+    </p>
+    <div class="features-grid stagger-children">
+        <div class="feature-card animate-on-scroll animate-scale">
+            <div class="feature-icon">🤖</div>
+            <div class="feature-title">AI Analysis</div>
+            <div class="feature-desc">
+                Gemini AI analyzes feedback sentiment and provides
+                actionable teaching improvement suggestions.
+            </div>
+        </div>
+        <div class="feature-card animate-on-scroll animate-scale">
+            <div class="feature-icon">📧</div>
+            <div class="feature-title">Auto Notifications</div>
+            <div class="feature-desc">
+                Automatic emails sent to students after each lecture
+                with personalized feedback links.
+            </div>
+        </div>
+        <div class="feature-card animate-on-scroll animate-scale">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Live Analytics</div>
+            <div class="feature-desc">
+                Real-time dashboards with charts and graphs showing
+                performance trends and insights.
+            </div>
+        </div>
+        <div class="feature-card animate-on-scroll animate-scale">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-title">Secure & Private</div>
+            <div class="feature-desc">
+                Role-based access control ensures each user only
+                sees their own relevant data.
+            </div>
+        </div>
+        <div class="feature-card animate-on-scroll animate-scale">
+            <div class="feature-icon">📱</div>
+            <div class="feature-title">Mobile Friendly</div>
+            <div class="feature-desc">
+                Fully responsive design works perfectly on all
+                devices - phones, tablets and desktops.
+            </div>
+        </div>
+        <div class="feature-card animate-on-scroll animate-scale">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Instant Feedback</div>
+            <div class="feature-desc">
+                Students submit feedback in under 2 minutes
+                with our streamlined feedback form.
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="how-section" id="how">
+    <div class="how-inner">
+        <div class="section-badge animate-on-scroll animate-left">🔄 Process</div>
+        <h2 class="section-title animate-on-scroll">How It Works</h2>
+        <p class="section-subtitle animate-on-scroll" style="margin: 0 auto 0;">
+            Simple 4-step process from lecture to insights
+        </p>
+        <div class="steps-grid stagger-children">
+            <div class="step-item animate-on-scroll">
+                <div class="step-number">1</div>
+                <div class="step-title">Lecture Ends</div>
+                <div class="step-desc">
+                    Teacher marks attendance after the lecture is complete
+                </div>
+            </div>
+            <div class="step-item animate-on-scroll">
+                <div class="step-number">2</div>
+                <div class="step-title">Email Sent</div>
+                <div class="step-desc">
+                    Students automatically receive feedback link via email
+                </div>
+            </div>
+            <div class="step-item animate-on-scroll">
+                <div class="step-number">3</div>
+                <div class="step-title">Feedback Given</div>
+                <div class="step-desc">
+                    Students rate and comment on the lecture quality
+                </div>
+            </div>
+            <div class="step-item animate-on-scroll">
+                <div class="step-number">4</div>
+                <div class="step-title">AI Insights</div>
+                <div class="step-desc">
+                    Teachers receive AI-powered suggestions to improve
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="cta-card animate-on-scroll animate-scale">
+        <h2 class="cta-title">
+            Ready to Transform<br>
+            <span style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Your University?
+            </span>
+        </h2>
+        <p class="cta-subtitle">
+            Join COMSATS University's smart feedback system today.
+        </p>
+        <a href="/login" class="btn-primary-hero">
+            <i class="fas fa-rocket"></i>
+            Login to Portal
+        </a>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-brand">TechAware</div>
+    <div class="footer-text">
+        © 2024 COMSATS University Islamabad. All rights reserved.
+    </div>
+</footer>
+<script>
+// Scroll animations
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { 
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+});
+
+document.querySelectorAll('.animate-on-scroll').forEach(el => {
+    observer.observe(el);
+});
+
+// Navbar scroll effect
+window.addEventListener('scroll', () => {
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+});
+
+// Counter animation
+function animateCounter(el, target, duration = 2000) {
+    let start = 0;
+    const step = target / (duration / 16);
+    const timer = setInterval(() => {
+        start += step;
+        if (start >= target) {
+            el.textContent = target + '+';
+            clearInterval(timer);
+        } else {
+            el.textContent = Math.floor(start) + '+';
+        }
+    }, 16);
+}
+
+// Animate counters when visible
+const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const el = entry.target;
+            const target = parseInt(el.dataset.target);
+            if (target) animateCounter(el, target);
+            counterObserver.unobserve(el);
+        }
+    });
+});
+
+document.querySelectorAll('.stat-number[data-target]').forEach(el => {
+    counterObserver.observe(el);
+});
+
+// Particles
+function createParticles() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+    
+    for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + 'vw';
+        particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+        particle.style.animationDelay = (Math.random() * 10) + 's';
+        particle.style.width = (Math.random() * 3 + 1) + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.opacity = Math.random() * 0.5 + 0.1;
+        container.appendChild(particle);
+    }
+}
+
+createParticles();
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+</script>
+</body>
+</html>

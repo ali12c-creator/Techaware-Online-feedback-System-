@@ -1,0 +1,66 @@
+flowchart TD
+    A["🏠 Home Page"] --> B["👤 Student Login"]
+    A --> C["🔐 Admin/Teacher Login"]
+    
+    B --> D["📊 Student Dashboard"]
+    D --> E["📝 Feedback Form"]
+    D --> F["📋 Feedback History"]
+    D --> G["🔑 Change Password"]
+    D --> H["🚪 Logout"]
+    E --> I["📈 Feedback Result<br/>(Sentiment + Suggestions)"]
+    
+    C --> J{"🔀 Role Check"}
+    J -->|"Admin"| K["⚙️ Admin Management Panel"]
+    J -->|"Teacher"| L["📊 Teacher Dashboard"]
+    
+    K --> M["🏢 Manage Departments"]
+    K --> N["📦 Manage Batches"]
+    K --> O["📂 Manage Sections"]
+    K --> P["📚 Manage Courses"]
+    K --> Q["👨‍🏫 Manage Teachers"]
+    K --> R["👥 Manage Students"]
+    K --> S["📅 Manage Timetable"]
+    K --> T["💬 View Feedback"]
+    K --> U["🔑 Change Password"]
+    K --> V["🚪 Logout"]
+    
+    L --> W["📊 View Statistics<br/>(Chart.js Graphs)"]
+    L --> X["💡 View AI Suggestions"]
+    L --> Y["📋 View Feedback List"]
+    L --> Z["📄 Export PDF Report"]
+    L --> AA["🔑 Change Password"]
+    L --> AB["🚪 Logout"]
+
+    C --> AC["❓ Forgot Password"]
+    AC --> AD["🔁 Reset Password"]
+
+    style A fill:#e3f2fd,stroke:#1565c0,stroke-width:3px,color:#000
+    style B fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style C fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style D fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style E fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#000
+    style F fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#000
+    style G fill:#e8eaf6,stroke:#3949ab,stroke-width:2px,color:#000
+    style H fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000
+    style I fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style J fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style K fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style L fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style M fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style N fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style O fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style P fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style Q fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style R fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style S fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style T fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style U fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style V fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000
+    style W fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style X fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style Y fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style Z fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style AA fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style AB fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000
+    style AC fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style AD fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000

@@ -1,0 +1,71 @@
+flowchart TB
+    subgraph Core["🔑 Core Tables"]
+        direction LR
+        U["<b>users</b><br/>──────────<br/>id PK<br/>username UK<br/>email UK<br/>password_hash<br/>role<br/>name<br/>is_active<br/>created_at"]
+        D["<b>departments</b><br/>──────────<br/>id PK<br/>code UK<br/>name<br/>description<br/>is_active"]
+    end
+
+    subgraph Academic["📚 Academic Tables"]
+        direction LR
+        B["<b>batches</b><br/>──────────<br/>id PK<br/>department_id FK<br/>name<br/>year<br/>semester<br/>start_date<br/>end_date"]
+        SE["<b>sections</b><br/>──────────<br/>id PK<br/>batch_id FK<br/>name<br/>capacity<br/>current_students"]
+        C["<b>courses</b><br/>──────────<br/>id PK<br/>code UK<br/>name<br/>department_id FK<br/>credit_hours<br/>description"]
+    end
+
+    subgraph People["👥 People Tables"]
+        direction LR
+        T["<b>teachers</b><br/>──────────<br/>id PK<br/>name<br/>email UK<br/>employee_id UK<br/>department<br/>designation"]
+        ST["<b>students</b><br/>──────────<br/>id PK<br/>reg_number UK<br/>name<br/>email UK<br/>password_hash<br/>department_id FK<br/>batch_id FK<br/>section_id FK"]
+    end
+
+    subgraph Mapping["🔗 Mapping Tables"]
+        direction LR
+        BS["<b>batch_subjects</b><br/>──────────<br/>id PK<br/>batch_id FK<br/>course_id FK<br/>is_required"]
+        CT["<b>course_teachers</b><br/>──────────<br/>id PK<br/>batch_subject_id FK<br/>teacher_id FK<br/>section_id FK<br/>lecture_type"]
+        SC["<b>student_courses</b><br/>──────────<br/>id PK<br/>student_id FK<br/>course_id FK<br/>semester<br/>section"]
+    end
+
+    subgraph Operations["📊 Operational Tables"]
+        direction LR
+        FB["<b>feedbacks</b><br/>──────────<br/>id PK<br/>student_id FK<br/>course_id FK<br/>teacher_id FK<br/>feedback_text<br/>sentiment<br/>polarity<br/>subjectivity<br/>rating_overall<br/>suggestions"]
+        TT["<b>timetables</b><br/>──────────<br/>id PK<br/>course_id FK<br/>teacher_id FK<br/>section_id FK<br/>batch_id FK<br/>day_of_week<br/>start_time<br/>end_time<br/>room"]
+    end
+
+    D -->|"1:N"| B
+    D -->|"1:N"| C
+    D -->|"1:N"| ST
+    B -->|"1:N"| SE
+    B -->|"1:N"| BS
+    B -->|"1:N"| TT
+    SE -->|"1:N"| ST
+    SE -->|"1:N"| CT
+    SE -->|"1:N"| TT
+    C -->|"1:N"| FB
+    C -->|"1:N"| BS
+    C -->|"1:N"| TT
+    C -->|"1:N"| SC
+    T -->|"1:N"| FB
+    T -->|"1:N"| CT
+    T -->|"1:N"| TT
+    ST -->|"1:N"| FB
+    ST -->|"1:N"| SC
+    BS -->|"1:N"| CT
+
+    style Core fill:#e3f2fd,stroke:#1565c0,stroke-width:3px
+    style Academic fill:#fff3e0,stroke:#e65100,stroke-width:3px
+    style People fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+    style Mapping fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
+    style Operations fill:#fce4ec,stroke:#c62828,stroke-width:3px
+
+    style U fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style D fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    style B fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style SE fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style C fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    style T fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style ST fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    style BS fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style CT fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style SC fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:#000
+    style FB fill:#f8bbd0,stroke:#c62828,stroke-width:2px,color:#000
+    style TT fill:#f8bbd0,stroke:#c62828,stroke-width:2px,color:#000

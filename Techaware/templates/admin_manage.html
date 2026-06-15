@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Management Panel - TechAware</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='modern-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='enhanced-style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .admin-body {
+            background: #f5f6fa;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .admin-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .admin-navbar .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #4338ca;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .logout-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 999px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 600;
+        }
+
+        .admin-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            color: white;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .admin-header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .sections-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid #edf0f7;
+        }
+
+        .section-title {
+            margin: 0 0 1.25rem 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .section-buttons {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .section-buttons.columns-3 {
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        }
+
+        .section-buttons.columns-2 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .admin-tab {
+            padding: 1.1rem 1rem;
+            background: #f9fafb;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            min-height: 110px;
+            text-align: center;
+        }
+
+        .admin-tab:hover {
+            transform: scale(1.03);
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-tab.active {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .section-icon {
+            font-size: 1.6rem;
+        }
+
+        .section-label {
+            font-size: 0.95rem;
+        }
+
+        .section-academic .admin-tab {
+            background: #f5f8ff;
+            border-color: #dbe7ff;
+            color: #2f4b8f;
+        }
+
+        .section-users .admin-tab {
+            background: #f1fbf4;
+            border-color: #c7f0d5;
+            color: #1f7a4d;
+        }
+
+        .section-analytics .admin-tab {
+            background: #f7f1ff;
+            border-color: #e2d3ff;
+            color: #6b21a8;
+        }
+
+        .section-settings .admin-tab {
+            background: #fff5e6;
+            border-color: #ffe1bf;
+            color: #b45309;
+        }
+
+        .section-academic .admin-tab.active,
+        .section-users .admin-tab.active,
+        .section-analytics .admin-tab.active,
+        .section-settings .admin-tab.active {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        .quick-access-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-access-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quick-access-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-color);
+        }
+
+        .category-section {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .admin-content {
+            display: none;
+        }
+
+        .admin-content.active {
+            display: block;
+        }
+
+        .admin-card {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .admin-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group-admin {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label-admin {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-input-admin, .form-select-admin, .form-textarea-admin {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: var(--transition);
+            background: #f8f9fa;
+        }
+
+        .form-input-admin:focus, .form-select-admin:focus, .form-textarea-admin:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea-admin {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-admin {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-admin {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-success-admin {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-danger-admin {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .btn-warning-admin {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: white;
+        }
+
+        .btn-info-admin {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+        }
+
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .admin-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+
+        .badge-danger {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+        }
+
+        .badge-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #d68910;
+        }
+
+        .badge-info {
+            background: rgba(23, 162, 184, 0.1);
+            color: #138496;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+
+        .stats-grid-admin {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card-admin {
+            padding: 1.75rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card-admin::after {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-card-admin.stat-users {
+            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+        }
+
+        .stat-card-admin.stat-teachers {
+            background: linear-gradient(135deg, #16a34a 0%, #4ade80 100%);
+        }
+
+        .stat-card-admin.stat-feedback {
+            background: linear-gradient(135deg, #7c3aed 0%, #c084fc 100%);
+        }
+
+        .stat-card-admin.stat-pending {
+            background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+        }
+
+        .stat-number-admin {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+            margin-bottom: 0.35rem;
+        }
+
+        .stat-label-admin {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.85);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .message-box-admin {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message-box-admin.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid var(--success-color);
+        }
+
+        .message-box-admin.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid var(--danger-color);
+        }
+
+        .checkbox-group-admin {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .checkbox-item-admin {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-item-admin input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid-admin {
+                grid-template-columns: 1fr;
+            }
+
+            .section-buttons.columns-3,
+            .section-buttons.columns-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="admin-body">
+    <!-- Navigation Bar -->
+    <nav class="admin-navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="TechAware Logo">
+                <span>TechAware</span>
+            </a>
+            <div class="nav-actions">
+                <div class="admin-user-badge">
+                    <span>👤</span>
+                    <span>{{ user.name if user else 'Admin' }} (Admin)</span>
+                </div>
+                <a href="/logout" class="nav-btn logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <h1>⚙️ Advanced Administration Panel</h1>
+            <p>Complete system management and configuration</p>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div class="stats-grid-admin">
+            <div class="stat-card-admin stat-users">
+                <div class="stat-icon">👥</div>
+                <div>
+                    <div class="stat-number-admin" id="stat-users">0</div>
+                    <div class="stat-label-admin">Total Users</div>
+                </div>
+            </div>
+            <div class="stat-card-admin stat-teachers">
+                <div class="stat-icon">👨‍🏫</div>
+                <div>
+                    <div class="stat-number-admin" id="stat-teachers">0</div>
+                    <div class="stat-label-admin">Teachers</div>
+                </div>
+            </div>
+            <div class="stat-card-admin stat-feedback">
+                <div class="stat-icon">📊</div>
+                <div>
+                    <div class="stat-number-admin" id="stat-feedback">0</div>
+                    <div class="stat-label-admin">Total Feedback</div>
+                </div>
+            </div>
+            <div class="stat-card-admin stat-pending">
+                <div class="stat-icon">⏳</div>
+                <div>
+                    <div class="stat-number-admin" id="stat-pending">0</div>
+                    <div class="stat-label-admin">Pending Approval</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Tabs with Categories -->
+        <div class="sections-grid">
+            <div class="section-card section-academic">
+                <h3 class="section-title">🎓 Academic Management</h3>
+                <div class="section-buttons columns-3">
+                    <button class="admin-tab" data-tab="departments" onclick="switchTab('departments')" type="button">
+                        <span class="section-icon">🏛️</span>
+                        <span class="section-label">Departments</span>
+                    </button>
+                    <button class="admin-tab" data-tab="batches" onclick="switchTab('batches')" type="button">
+                        <span class="section-icon">📚</span>
+                        <span class="section-label">Batches</span>
+                    </button>
+                    <button class="admin-tab" data-tab="sections" onclick="switchTab('sections')" type="button">
+                        <span class="section-icon">📋</span>
+                        <span class="section-label">Sections</span>
+                    </button>
+                    <button class="admin-tab" data-tab="courses" onclick="switchTab('courses')" type="button">
+                        <span class="section-icon">📖</span>
+                        <span class="section-label">Subjects</span>
+                    </button>
+                    <button class="admin-tab" data-tab="batch-subjects" onclick="switchTab('batch-subjects')" type="button">
+                        <span class="section-icon">🔗</span>
+                        <span class="section-label">Batch Subjects</span>
+                    </button>
+                    <button class="admin-tab" data-tab="teacher-assignments" onclick="switchTab('teacher-assignments')" type="button">
+                        <span class="section-icon">👨‍🏫</span>
+                        <span class="section-label">Assign Teachers</span>
+                    </button>
+                    <button class="admin-tab" data-tab="timetable" onclick="switchTab('timetable')" type="button">
+                        <span class="section-icon">📅</span>
+                        <span class="section-label">Timetable</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="section-card section-users">
+                <h3 class="section-title">👥 User Management</h3>
+                <div class="section-buttons columns-3">
+                    <button class="admin-tab active" data-tab="users" onclick="switchTab('users')" type="button">
+                        <span class="section-icon">👤</span>
+                        <span class="section-label">Users</span>
+                    </button>
+                    <button class="admin-tab" data-tab="students" onclick="switchTab('students')" type="button">
+                        <span class="section-icon">🎓</span>
+                        <span class="section-label">Students</span>
+                    </button>
+                    <button class="admin-tab" data-tab="teachers" onclick="switchTab('teachers')" type="button">
+                        <span class="section-icon">👨‍🏫</span>
+                        <span class="section-label">Teachers</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="section-card section-analytics">
+                <h3 class="section-title">📊 Analytics &amp; Reports</h3>
+                <div class="section-buttons columns-2">
+                    <button class="admin-tab" data-tab="analytics" onclick="switchTab('analytics')" type="button">
+                        <span class="section-icon">📈</span>
+                        <span class="section-label">Analytics</span>
+                    </button>
+                    <button class="admin-tab" data-tab="reports" onclick="switchTab('reports')" type="button">
+                        <span class="section-icon">📋</span>
+                        <span class="section-label">Reports</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="section-card section-settings">
+                <h3 class="section-title">⚙️ System Settings</h3>
+                <div class="section-buttons columns-3">
+                    <button class="admin-tab" data-tab="feedback" onclick="switchTab('feedback')" type="button">
+                        <span class="section-icon">💬</span>
+                        <span class="section-label">Feedback Settings</span>
+                    </button>
+                    <button class="admin-tab" data-tab="smtp" onclick="switchTab('smtp')" type="button">
+                        <span class="section-icon">📧</span>
+                        <span class="section-label">SMTP</span>
+                    </button>
+                    <button class="admin-tab" data-tab="email" onclick="switchTab('email')" type="button">
+                        <span class="section-icon">📨</span>
+                        <span class="section-label">Email</span>
+                    </button>
+                    <button class="admin-tab" data-tab="database" onclick="switchTab('database')" type="button">
+                        <span class="section-icon">🗄️</span>
+                        <span class="section-label">Database</span>
+                    </button>
+                    <button class="admin-tab" data-tab="settings" onclick="switchTab('settings')" type="button">
+                        <span class="section-icon">⚙️</span>
+                        <span class="section-label">Settings</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Box -->
+        <div id="messageBox" class="message-box-admin"></div>
+
+        <!-- Tab Contents -->
+
+        <!-- 1. User Management -->
+        <div id="tab-users" class="admin-content active">
+            <div class="admin-card">
+                <h2>👥 User Management</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Add New User</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">
+                            Password will be automatically generated and sent via email. You'll also see it in the success message.
+                        </p>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Full Name *</label>
+                            <input type="text" id="new-name" class="form-input-admin" placeholder="Enter full name">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Email *</label>
+                            <input type="email" id="new-email" class="form-input-admin" placeholder="Enter email">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Role *</label>
+                            <select id="new-role" class="form-select-admin">
+                                <option value="admin">Administrator</option>
+                                <option value="batch advisor">Batch Advisor</option>
+                            </select>
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="createUser()">
+                            ➕ Create User
+                        </button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">All Users</h3>
+                <div class="table-container">
+                    <table class="admin-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="8" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Department Management -->
+        <div id="tab-departments" class="admin-content">
+            <div class="admin-card">
+                <h2>🏛️ Department Management</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Add New Department</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department Code *</label>
+                            <input type="text" id="dept-code" class="form-input-admin" placeholder="e.g., CS, MATH">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department Name *</label>
+                            <input type="text" id="dept-name" class="form-input-admin" placeholder="e.g., Computer Science">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Description</label>
+                            <textarea id="dept-description" class="form-input-admin" placeholder="Enter description"></textarea>
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="createDepartment()">
+                            ➕ Add Department
+                        </button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">All Departments</h3>
+                <div class="table-container">
+                    <table class="admin-table" id="departmentsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Batches</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departmentsTableBody">
+                            <tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Batch Management -->
+        <div id="tab-batches" class="admin-content">
+            <div class="admin-card">
+                <h2>📅 Batch Management</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Add New Batch</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department *</label>
+                            <select id="batch-dept-id" class="form-select-admin" onchange="loadBatches()">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Batch Name *</label>
+                            <input type="text" id="batch-name" class="form-input-admin" placeholder="e.g., Fall 2024">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Year *</label>
+                            <input type="number" id="batch-year" class="form-input-admin" placeholder="e.g., 2024" min="2020" max="2100">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Semester *</label>
+                            <select id="batch-semester" class="form-select-admin">
+                                <option value="Fall">Fall</option>
+                                <option value="Spring">Spring</option>
+                                <option value="Summer">Summer</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Start Date</label>
+                            <input type="date" id="batch-start-date" class="form-input-admin">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">End Date</label>
+                            <input type="date" id="batch-end-date" class="form-input-admin">
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="createBatch()">
+                            ➕ Add Batch
+                        </button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">All Batches</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label class="form-label-admin">Filter by Department:</label>
+                    <select id="filter-batch-dept" class="form-select-admin" onchange="loadBatches()" style="max-width: 300px; display: inline-block; margin-left: 1rem;">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table" id="batchesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Department</th>
+                                <th>Name</th>
+                                <th>Year</th>
+                                <th>Semester</th>
+                                <th>Sections</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchesTableBody">
+                            <tr><td colspan="10" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Section Management -->
+        <div id="tab-sections" class="admin-content">
+            <div class="admin-card">
+                <h2>📋 Section Management</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Add New Section</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department *</label>
+                            <select id="section-dept-id" class="form-select-admin" onchange="loadBatchesForSection()">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Batch *</label>
+                            <select id="section-batch-id" class="form-select-admin">
+                                <option value="">-- Select Batch --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Section Name *</label>
+                            <input type="text" id="section-name" class="form-input-admin" placeholder="e.g., A, B, C" maxlength="10">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Capacity</label>
+                            <input type="number" id="section-capacity" class="form-input-admin" placeholder="50" min="1" max="200" value="50">
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="createSection()">
+                            ➕ Add Section
+                        </button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">All Sections</h3>
+                <div style="margin-bottom: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <div>
+                        <label class="form-label-admin">Filter by Department:</label>
+                        <select id="filter-section-dept" class="form-select-admin" onchange="loadBatchesForSectionFilter(); loadSections()" style="max-width: 300px; display: inline-block; margin-left: 1rem;">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label-admin">Filter by Batch:</label>
+                        <select id="filter-section-batch" class="form-select-admin" onchange="loadSections()" style="max-width: 300px; display: inline-block; margin-left: 1rem;">
+                            <option value="">All Batches</option>
+                        </select>
+                    </div>
+                    <div style="align-self: flex-end;">
+                        <button class="btn-admin btn-info-admin" onclick="showSectionCounts()">
+                            📊 View Section Counts by Department
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table" id="sectionsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Department</th>
+                                <th>Batch</th>
+                                <th>Section Name</th>
+                                <th>Capacity</th>
+                                <th>Current Students</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sectionsTableBody">
+                            <tr><td colspan="8" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Course Management -->
+        <div id="tab-courses" class="admin-content">
+            <div class="admin-card">
+                <h2>📚 Course Management</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Add New Course</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Course Code *</label>
+                            <input type="text" id="course-code" class="form-input-admin" placeholder="e.g., CS101">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Course Name *</label>
+                            <input type="text" id="course-name" class="form-input-admin" placeholder="Enter course name">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department</label>
+                            <select id="course-department" class="form-input-admin">
+                                <option value="">-- Select Department (Optional) --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Credit Hours</label>
+                            <input type="number" id="course-credit-hours" class="form-input-admin" placeholder="e.g., 3" value="3" min="1" max="6">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Description</label>
+                            <textarea id="course-description" class="form-input-admin" rows="3" placeholder="Enter course description (optional)"></textarea>
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="createCourse()">
+                            ➕ Add Course
+                        </button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">All Courses</h3>
+                <div class="table-container">
+                    <table class="admin-table" id="coursesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Credit Hours</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coursesTableBody">
+                            <tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Assign Subjects to Batch -->
+        <div id="tab-batch-subjects" class="admin-content">
+            <div class="admin-card">
+                <h2>🔗 Assign Subjects to Batch</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Assign Subject to Batch</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department *</label>
+                            <select id="bs-dept-id" class="form-select-admin" onchange="loadBatchesForBatchSubject()">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Batch *</label>
+                            <select id="bs-batch-id" class="form-select-admin" onchange="loadBatchSubjects()">
+                                <option value="">-- Select Batch --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Subject/Course *</label>
+                            <select id="bs-course-id" class="form-select-admin">
+                                <option value="">-- Select Course --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">
+                                <input type="checkbox" id="bs-is-required" checked> Required Course
+                            </label>
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="assignBatchSubject()">
+                            ➕ Assign Subject to Batch
+                        </button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Assigned Subjects by Batch</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label class="form-label-admin">Filter by Batch:</label>
+                    <select id="filter-bs-batch" class="form-select-admin" onchange="loadBatchSubjects()" style="max-width: 300px; display: inline-block; margin-left: 1rem;">
+                        <option value="">All Batches</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table" id="batchSubjectsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Batch</th>
+                                <th>Department</th>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Required</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchSubjectsTableBody">
+                            <tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Assign Teachers -->
+        <div id="tab-teacher-assignments" class="admin-content">
+            <div class="admin-card">
+                <h2>👨‍🏫 Assign Teachers to Subjects & Batches</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Assign Teacher</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department *</label>
+                            <select id="ta-dept-id" class="form-select-admin" onchange="loadBatchesForTeacherAssignment()">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Batch *</label>
+                            <select id="ta-batch-id" class="form-select-admin" onchange="loadSubjectsForTeacherAssignment(); loadSectionsForTeacherAssignment()">
+                                <option value="">-- Select Batch --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Subject/Course *</label>
+                            <select id="ta-batch-subject-id" class="form-select-admin">
+                                <option value="">-- Select Subject --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Teacher *</label>
+                            <select id="ta-teacher-id" class="form-select-admin">
+                                <option value="">-- Select Teacher --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Section (Optional)</label>
+                            <select id="ta-section-id" class="form-select-admin">
+                                <option value="">-- All Sections --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Lecture Type</label>
+                            <select id="ta-lecture-type" class="form-select-admin">
+                                <option value="Theory">Theory</option>
+                                <option value="Practical">Practical</option>
+                                <option value="Seminar">Seminar</option>
+                            </select>
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="assignTeacherToBatch()">
+                            ➕ Assign Teacher
+                        </button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Teacher Assignments</h3>
+                <div style="margin-bottom: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <div>
+                        <label class="form-label-admin">Filter by Batch:</label>
+                        <select id="filter-ta-batch" class="form-select-admin" onchange="loadTeacherAssignments()" style="max-width: 300px; display: inline-block; margin-left: 1rem;">
+                            <option value="">All Batches</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label-admin">Filter by Teacher:</label>
+                        <select id="filter-ta-teacher" class="form-select-admin" onchange="loadTeacherAssignments()" style="max-width: 300px; display: inline-block; margin-left: 1rem;">
+                            <option value="">All Teachers</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table" id="teacherAssignmentsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Batch</th>
+                                <th>Subject</th>
+                                <th>Teacher</th>
+                                <th>Section</th>
+                                <th>Lecture Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacherAssignmentsTableBody">
+                            <tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7.6 Timetable Management -->
+        <div id="tab-timetable" class="admin-content">
+            <div class="admin-card">
+                <h2>📅 Timetable Management</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Add New Timetable Entry</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Course *</label>
+                            <select id="timetable-course" class="form-select-admin">
+                                <option value="">-- Select Course --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Teacher *</label>
+                            <select id="timetable-teacher" class="form-select-admin">
+                                <option value="">-- Select Teacher --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department</label>
+                            <select id="timetable-department" class="form-select-admin" onchange="loadBatchesForTimetable()">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Batch *</label>
+                            <select id="timetable-batch" class="form-select-admin" onchange="loadSectionsForTimetable()">
+                                <option value="">-- Select Batch --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Section *</label>
+                            <select id="timetable-section" class="form-select-admin">
+                                <option value="">-- Select Section --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Day of Week *</label>
+                            <select id="timetable-day" class="form-select-admin">
+                                <option value="0">Monday</option>
+                                <option value="1">Tuesday</option>
+                                <option value="2">Wednesday</option>
+                                <option value="3">Thursday</option>
+                                <option value="4">Friday</option>
+                                <option value="5">Saturday</option>
+                                <option value="6">Sunday</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Start Time *</label>
+                            <input type="time" id="timetable-start-time" class="form-input-admin" required>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">End Time *</label>
+                            <input type="time" id="timetable-end-time" class="form-input-admin" required>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Room/Location</label>
+                            <input type="text" id="timetable-room" class="form-input-admin" placeholder="e.g., CS-101, Lab-5">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Semester *</label>
+                            <input type="text" id="timetable-semester" class="form-input-admin" placeholder="e.g., Fall 2024, Spring 2025" required>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Session Type</label>
+                            <select id="timetable-session-type" class="form-select-admin">
+                                <option value="">-- Select Session Type --</option>
+                                <option value="Morning">Morning</option>
+                                <option value="Evening">Evening</option>
+                            </select>
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="createTimetable()">
+                            ➕ Add Timetable Entry
+                        </button>
+                        <div id="timetable-conflicts" style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-radius: var(--border-radius); display: none;">
+                            <strong>⚠️ Conflicts Detected:</strong>
+                            <ul id="conflicts-list" style="margin: 0.5rem 0 0 1.5rem; padding: 0;"></ul>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Filter Timetable</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Department</label>
+                            <select id="timetable-filter-department" class="form-select-admin" onchange="loadBatchesForTimetableFilter(); loadTimetable();">
+                                <option value="">-- All Departments --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Batch</label>
+                            <select id="timetable-filter-batch" class="form-select-admin" onchange="loadSectionsForTimetableFilter(); loadTimetable();">
+                                <option value="">-- All Batches --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Section</label>
+                            <select id="timetable-filter-section" class="form-select-admin" onchange="loadTimetable();">
+                                <option value="">-- All Sections --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Teacher</label>
+                            <select id="timetable-filter-teacher" class="form-select-admin" onchange="loadTimetable();">
+                                <option value="">-- All Teachers --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Course</label>
+                            <select id="timetable-filter-course" class="form-select-admin" onchange="loadTimetable();">
+                                <option value="">-- All Courses --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Semester</label>
+                            <input type="text" id="timetable-filter-semester" class="form-input-admin" placeholder="e.g., Fall 2024" onkeyup="loadTimetable();">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Show Only Active</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="timetable-filter-active" checked onchange="loadTimetable();">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">All Timetable Entries</h3>
+                <div class="table-container">
+                    <table class="admin-table" id="timetableTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Course</th>
+                                <th>Teacher</th>
+                                <th>Section</th>
+                                <th>Batch</th>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>Room</th>
+                                <th>Semester</th>
+                                <th>Session</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timetableTableBody">
+                            <tr><td colspan="12" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7.5 Student Management -->
+        <div id="tab-students" class="admin-content">
+            <div class="admin-card">
+                <h2>👨‍🎓 Student Management</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Add New Student</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Full Name *</label>
+                            <input type="text" id="student-name" class="form-input-admin" placeholder="Enter full name">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Email</label>
+                            <input type="email" id="student-email" class="form-input-admin" placeholder="student@comsats.edu.pk">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Roll Number *</label>
+                            <input type="text" id="student-registration" class="form-input-admin" placeholder="FA20-BCS-001" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department</label>
+                            <select id="student-department" class="form-select-admin" onchange="loadCoursesForStudent(this.value)">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Batch</label>
+                            <select id="student-batch" class="form-select-admin">
+                                <option value="">-- Select Batch --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Section</label>
+                            <select id="student-section" class="form-select-admin">
+                                <option value="">-- Select Section --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">
+                                Enroll in Courses
+                            </label>
+                            <div id="student-courses-list" 
+                            style="max-height:200px; 
+                            overflow-y:auto; border:1px solid #ddd;
+                            border-radius:8px; padding:8px;">
+                                Loading courses...
+                            </div>
+                            <small style="color:#6b7280;">
+                                Select multiple courses for this student
+                            </small>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Phone</label>
+                            <input type="text" id="student-phone" class="form-input-admin" placeholder="+92-300-1234567">
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="createStudent()">
+                            ➕ Add Student
+                        </button>
+                        <small style="color:#6b7280; margin-top:8px; display:block;">
+                            ⚡ Password will be auto-generated by system and sent to student's email
+                        </small>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Filter Students</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Search</label>
+                            <input type="text" id="student-search" class="form-input-admin" placeholder="Search by name, registration, or email" onkeyup="loadStudents()">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Department</label>
+                            <select id="student-filter-department" class="form-select-admin" onchange="loadStudents()">
+                                <option value="">-- All Departments --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Batch</label>
+                            <select id="student-filter-batch" class="form-select-admin" onchange="loadStudents()">
+                                <option value="">-- All Batches --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Section</label>
+                            <select id="student-filter-section" class="form-select-admin" onchange="loadStudents()">
+                                <option value="">-- All Sections --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">All Students</h3>
+                <div class="table-container">
+                    <table class="admin-table" id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Registration #</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Batch</th>
+                                <th>Section</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr><td colspan="10" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Teacher Management -->
+        <div id="tab-teachers" class="admin-content">
+            <div class="admin-card">
+                <h2>👨‍🏫 Teacher Management</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Add New Teacher</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Full Name *</label>
+                            <input type="text" id="teacher-name" class="form-input-admin" placeholder="Enter teacher name">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Email</label>
+                            <input type="email" id="teacher-email" class="form-input-admin" placeholder="teacher@comsats.edu.pk">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Department</label>
+                            <select id="teacher-department" class="form-select-admin">
+                                <option value="">-- Select Department --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Designation</label>
+                            <select id="teacher-designation" class="form-select-admin">
+                                <option value="Professor">Professor</option>
+                                <option value="Associate Professor">Associate Professor</option>
+                                <option value="Assistant Professor">Assistant Professor</option>
+                                <option value="Lecturer">Lecturer</option>
+                                <option value="Lab Engineer">Lab Engineer</option>
+                            </select>
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="createTeacher()">
+                            ➕ Add Teacher
+                        </button>
+                        <small style="color:#6b7280; margin-top:8px; display:block;">
+                            ⚡ Employee ID and Password will be auto-generated by system and sent to teacher's email
+                        </small>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">All Teachers</h3>
+                <div class="table-container">
+                    <table class="admin-table" id="teachersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Employee ID</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teachersTableBody">
+                            <tr><td colspan="8" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Course-Teacher Assignments</h3>
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Select Course</label>
+                            <select id="assign-course" class="form-select-admin">
+                                <option value="">-- Select Course --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Select Teacher</label>
+                            <select id="assign-teacher" class="form-select-admin">
+                                <option value="">-- Select Teacher --</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Section</label>
+                            <input type="text" id="assign-section" class="form-input-admin" placeholder="e.g., A, B, C">
+                        </div>
+                        <button class="btn-admin btn-primary-admin" onclick="assignCourseTeacher()">
+                            ➕ Assign Teacher to Course
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Feedback Management -->
+        <div id="tab-feedback" class="admin-content">
+            <div class="admin-card">
+                <h2>💬 Feedback Management</h2>
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="form-label-admin">Filter by Status</label>
+                    <select id="feedback-filter" class="form-select-admin" onchange="loadFeedback()">
+                        <option value="all">All Feedback</option>
+                        <option value="pending">Pending Approval</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table" id="feedbackTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Teacher</th>
+                                <th>Sentiment</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedbackTableBody">
+                            <tr><td colspan="9" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. SMTP Configuration -->
+        <div id="tab-smtp" class="admin-content">
+            <div class="admin-card">
+                <h2>📧 SMTP Configuration</h2>
+                <form id="smtpForm" onsubmit="event.preventDefault(); saveSMTPConfig();">
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">SMTP Server *</label>
+                                <input type="text" id="smtp-server" class="form-input-admin" placeholder="smtp.gmail.com" required>
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">SMTP Port *</label>
+                                <input type="number" id="smtp-port" class="form-input-admin" placeholder="587" required>
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Use TLS</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="smtp-tls" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Sender Email *</label>
+                                <input type="email" id="smtp-email" class="form-input-admin" placeholder="your-email@gmail.com" required>
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Sender Password/App Password *</label>
+                                <input type="password" id="smtp-password" class="form-input-admin" placeholder="Enter app password" required>
+                                <small style="color: var(--text-secondary); font-size: 0.85rem;">For Gmail, use App Password (not regular password)</small>
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Test Email To</label>
+                                <input type="email" id="test-email" class="form-input-admin" placeholder="test@example.com">
+                                <button type="button" class="btn-admin btn-info-admin" onclick="testSMTP()" style="margin-top: 0.5rem;">
+                                    🧪 Test SMTP Connection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-admin btn-success-admin">
+                        💾 Save SMTP Configuration
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 6. Email Settings -->
+        <div id="tab-email" class="admin-content">
+            <div class="admin-card">
+                <h2>✉️ Email Settings</h2>
+                <form id="emailSettingsForm" onsubmit="event.preventDefault(); saveEmailSettings();">
+                    <div class="form-grid">
+                        <div>
+                            <h3 style="margin-bottom: 1rem;">Notification Settings</h3>
+                            <div class="checkbox-group-admin">
+                                <div class="checkbox-item-admin">
+                                    <input type="checkbox" id="email-new-feedback" checked>
+                                    <label for="email-new-feedback">Send email on new feedback submission</label>
+                                </div>
+                                <div class="checkbox-item-admin">
+                                    <input type="checkbox" id="email-daily-summary">
+                                    <label for="email-daily-summary">Send daily summary email</label>
+                                </div>
+                                <div class="checkbox-item-admin">
+                                    <input type="checkbox" id="email-weekly-report">
+                                    <label for="email-weekly-report">Send weekly report</label>
+                                </div>
+                                <div class="checkbox-item-admin">
+                                    <input type="checkbox" id="email-feedback-approved">
+                                    <label for="email-feedback-approved">Notify student when feedback is approved</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style="margin-bottom: 1rem;">Email Configuration</h3>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Default Teacher Email</label>
+                                <input type="email" id="default-teacher-email" class="form-input-admin" placeholder="teacher@comsats.edu.pk">
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Email Subject Prefix</label>
+                                <input type="text" id="email-subject-prefix" class="form-input-admin" placeholder="[TechAware]" value="[TechAware]">
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Reply-To Email</label>
+                                <input type="email" id="reply-to-email" class="form-input-admin" placeholder="noreply@comsats.edu.pk">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-admin btn-success-admin">
+                        💾 Save Email Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 9. Analytics Dashboard -->
+        <div id="tab-analytics" class="admin-content">
+            <div class="admin-card">
+                <h2>📊 System Analytics</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="stat-card-admin">
+                        <div class="stat-number-admin" id="analytics-users">0</div>
+                        <div class="stat-label-admin">Total Users</div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-number-admin" id="analytics-students">0</div>
+                        <div class="stat-label-admin">Total Students</div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-number-admin" id="analytics-teachers">0</div>
+                        <div class="stat-label-admin">Total Teachers</div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-number-admin" id="analytics-courses">0</div>
+                        <div class="stat-label-admin">Total Courses</div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-number-admin" id="analytics-departments">0</div>
+                        <div class="stat-label-admin">Departments</div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-number-admin" id="analytics-batches">0</div>
+                        <div class="stat-label-admin">Batches</div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-number-admin" id="analytics-sections">0</div>
+                        <div class="stat-label-admin">Sections</div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-number-admin" id="analytics-feedback">0</div>
+                        <div class="stat-label-admin">Total Feedback</div>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="margin-top: 2rem;">
+                    <div class="admin-card">
+                        <h3>📈 Teacher Performance Overview</h3>
+                        <div id="teacher-performance-chart" style="min-height: 300px; padding: 1rem; background: #f8f9fa; border-radius: var(--border-radius);">
+                            <p>Loading teacher performance data...</p>
+                        </div>
+                    </div>
+                    <div class="admin-card">
+                        <h3>📊 Department Statistics</h3>
+                        <div id="department-stats-chart" style="min-height: 300px; padding: 1rem; background: #f8f9fa; border-radius: var(--border-radius);">
+                            <p>Loading department statistics...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card" style="margin-top: 2rem;">
+                    <h3>📉 Feedback Trends</h3>
+                    <div id="feedback-trends-chart" style="min-height: 300px; padding: 1rem; background: #f8f9fa; border-radius: var(--border-radius);">
+                        <p>Loading feedback trends...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. Reports -->
+        <div id="tab-reports" class="admin-content">
+            <div class="admin-card">
+                <h2>📄 Reports</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Generate Reports</h3>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Report Type</label>
+                            <select id="report-type" class="form-select-admin">
+                                <option value="feedback">Feedback Report</option>
+                                <option value="students">Student Report</option>
+                                <option value="teachers">Teacher Report</option>
+                                <option value="courses">Course Report</option>
+                                <option value="performance">Performance Report</option>
+                                <option value="attendance">Attendance Report</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Format</label>
+                            <select id="report-format" class="form-select-admin">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel (CSV)</option>
+                                <option value="json">JSON</option>
+                            </select>
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Date Range (From)</label>
+                            <input type="date" id="report-date-from" class="form-input-admin">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Date Range (To)</label>
+                            <input type="date" id="report-date-to" class="form-input-admin">
+                        </div>
+                        <div class="form-group-admin">
+                            <label class="form-label-admin">Filter by Department</label>
+                            <select id="report-department" class="form-select-admin">
+                                <option value="">-- All Departments --</option>
+                            </select>
+                        </div>
+                        <button class="btn-admin btn-success-admin" onclick="generateReport()">
+                            📄 Generate Report
+                        </button>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Recent Reports</h3>
+                        <div id="recent-reports" style="padding: 1rem; background: #f8f9fa; border-radius: var(--border-radius); min-height: 300px;">
+                            <p>No reports generated yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. Database Management -->
+        <div id="tab-database" class="admin-content">
+            <div class="admin-card">
+                <h2>🗄️ Database Management</h2>
+                <div class="form-grid">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Database Statistics</h3>
+                        <div id="dbStats" style="padding: 1rem; background: #f8f9fa; border-radius: var(--border-radius);">
+                            <p>Loading database statistics...</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Database Actions</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <button class="btn-admin btn-info-admin" onclick="backupDatabase()">
+                                💾 Backup Database
+                            </button>
+                            <button class="btn-admin btn-warning-admin" onclick="optimizeDatabase()">
+                                🔧 Optimize Database
+                            </button>
+                            <button class="btn-admin btn-danger-admin" onclick="resetDatabase()">
+                                ⚠️ Reset Database (Dangerous!)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Database Models</h3>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Model Name</th>
+                                <th>Table Name</th>
+                                <th>Record Count</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modelsTableBody">
+                            <tr><td colspan="4" style="text-align: center; padding: 2rem;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. System Settings -->
+        <!-- Courses Modal -->
+        <div id="courses-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+            <div style="background:white; border-radius:20px; padding:32px; width:500px; max-width:95%; max-height:80vh; overflow-y:auto;">
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h3>📚 Manage Courses</h3>
+                    <button onclick="closeCoursesModal()" style="background:none; border:none; font-size:20px; cursor:pointer;">✕</button>
+                </div>
+                
+                <p id="courses-modal-student" style="color:#667eea; font-weight:600; margin-bottom:16px;"></p>
+                
+                <h4 style="margin-bottom:12px;">Current Semester Courses:</h4>
+                <div id="current-courses-list" style="margin-bottom:20px;"></div>
+                
+                <hr style="margin:20px 0;">
+                
+                <h4 style="margin-bottom:12px;">Add New Course:</h4>
+                <div style="display:flex; gap:8px;">
+                    <select id="new-course-for-student" style="flex:1; padding:8px; border:1px solid #ddd; border-radius:8px;">
+                        <option value="">Select Course</option>
+                    </select>
+                    <button onclick="addNewCourse()" style="background:#667eea; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">+ Add</button>
+                </div>
+                
+                <p style="color:#999; font-size:12px; margin-top:8px;">💡 Use this to add courses for new semester</p>
+            </div>
+        </div>
+        <div id="tab-settings" class="admin-content">
+            <div class="admin-card">
+                <h2>⚙️ System Settings</h2>
+                <form id="systemSettingsForm" onsubmit="event.preventDefault(); saveSystemSettings();">
+                    <div class="form-grid">
+                        <div>
+                            <h3 style="margin-bottom: 1rem;">General Settings</h3>
+                            <div class="form-group-admin" style="background:#f0eeff;padding:15px;border-radius:10px;margin-bottom:20px;border-left:4px solid #6C63FF">
+                                <label class="form-label-admin" style="color:#6C63FF;font-weight:700">📧 Daily Feedback Summary Email Time</label>
+                                <small style="display:block;color:#666;margin-bottom:10px">Teachers ko is time pe aaj ki saari feedback email ho jayegi.</small>
+                                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                                    <input type="time" id="summaryTimeInput" class="form-input-admin" style="width:150px">
+                                    <button type="button" onclick="saveSummaryTime()" style="background:#6C63FF;color:white;padding:8px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:600">
+                                        Save Time
+                                    </button>
+                                    <span id="summaryTimeStatus" style="color:green;font-size:14px"></span>
+                                </div>
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">System Name</label>
+                                <input type="text" id="system-name" class="form-input-admin" value="TechAware Feedback System">
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Feedback Approval Required</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="require-approval">
+                                    <span class="slider"></span>
+                                </label>
+                                <small style="color: var(--text-secondary); font-size: 0.85rem;">Enable to require admin approval before feedback is visible</small>
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Anonymous Feedback Allowed</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="allow-anonymous" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style="margin-bottom: 1rem;">AI Settings</h3>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">Enable AI Suggestions</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="enable-ai" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group-admin">
+                                <label class="form-label-admin">AI Confidence Threshold</label>
+                                <input type="number" id="ai-threshold" class="form-input-admin" value="0.5" min="0" max="1" step="0.1">
+                                <small style="color: var(--text-secondary); font-size: 0.85rem;">Minimum confidence for AI suggestions (0.0 - 1.0)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-admin btn-success-admin">
+                        💾 Save System Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='enhanced-utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='admin_manage.js') }}"></script>
+    <script>
+    async function loadSummaryTime() {
+        try {
+            const res = await fetch('/api/admin/get-summary-time');
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('summaryTimeInput').value = data.time;
+            }
+        } catch(e) { console.log('summary time load error:', e); }
+    }
+
+    async function saveSummaryTime() {
+        const t = document.getElementById('summaryTimeInput').value;
+        if (!t) { document.getElementById('summaryTimeStatus').textContent = 'Time select karein'; return; }
+        try {
+            const res = await fetch('/api/admin/set-summary-time', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({time: t})
+            });
+            const data = await res.json();
+            const el = document.getElementById('summaryTimeStatus');
+            el.style.color = data.success ? 'green' : 'red';
+            el.textContent = data.success ? '✅ ' + data.message : '❌ Error';
+        } catch(e) { document.getElementById('summaryTimeStatus').textContent = '❌ Server error'; }
+    }
+
+    loadSummaryTime();
+
+    function editTimetable(id) {
+        fetch('/api/admin/timetable/' + id)
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) { alert('Could not load timetable'); return; }
+                const tt = data.timetable;
+
+                const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+                const dayOptions = days.map((d,i) =>
+                    `<option value="${i}" ${tt.day_of_week == i ? 'selected' : ''}>${d}</option>`
+                ).join('');
+
+                const modal = document.createElement('div');
+                modal.id = 'editTimetableModal';
+                modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+                modal.innerHTML = `
+                <div style="background:white;padding:30px;border-radius:12px;width:400px;max-width:95%">
+                    <h3 style="margin-top:0;color:#6C63FF">✏️ Edit Timetable</h3>
+                    <div style="margin-bottom:15px">
+                        <label style="display:block;margin-bottom:5px;font-weight:600">Day</label>
+                        <select id="edit_day" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px">
+                            ${dayOptions}
+                        </select>
+                    </div>
+                    <div style="margin-bottom:15px">
+                        <label style="display:block;margin-bottom:5px;font-weight:600">Start Time</label>
+                        <input type="time" id="edit_start" value="${tt.start_time}" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px">
+                    </div>
+                    <div style="margin-bottom:15px">
+                        <label style="display:block;margin-bottom:5px;font-weight:600">End Time</label>
+                        <input type="time" id="edit_end" value="${tt.end_time}" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px">
+                    </div>
+                    <div style="margin-bottom:20px">
+                        <label style="display:block;margin-bottom:5px;font-weight:600">Room</label>
+                        <input type="text" id="edit_room" value="${tt.room || ''}" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px">
+                    </div>
+                    <div style="display:flex;gap:10px;justify-content:flex-end">
+                        <button onclick="document.getElementById('editTimetableModal').remove()" 
+                            style="padding:8px 20px;border:1px solid #ddd;border-radius:6px;background:white;cursor:pointer">
+                            Cancel
+                        </button>
+                        <button onclick="saveEditTimetable(${id})"
+                            style="padding:8px 20px;background:#6C63FF;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600">
+                            Save Changes
+                        </button>
+                    </div>
+                    <p id="editTimetableMsg" style="margin-top:10px;text-align:center;font-size:14px"></p>
+                </div>`;
+                document.body.appendChild(modal);
+            });
+    }
+
+    async function saveEditTimetable(id) {
+        const payload = {
+            day_of_week: document.getElementById('edit_day').value,
+            start_time: document.getElementById('edit_start').value,
+            end_time: document.getElementById('edit_end').value,
+            room: document.getElementById('edit_room').value
+        };
+        const res = await fetch('/api/admin/timetable/' + id + '/edit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const msg = document.getElementById('editTimetableMsg');
+        if (data.success) {
+            msg.style.color = 'green';
+            msg.textContent = '✅ ' + data.message;
+            setTimeout(() => {
+                document.getElementById('editTimetableModal').remove();
+                location.reload();
+            }, 1000);
+        } else {
+            msg.style.color = 'red';
+            msg.textContent = '❌ ' + data.message;
+        }
+    }
+    </script>
+</body>
+</html>
+
